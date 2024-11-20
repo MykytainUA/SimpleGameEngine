@@ -10,7 +10,7 @@ public interface GameEngineWindow {
 	
 	public void showWindow();
 	public boolean isVisible();
-	public void resizeWindow(Dimension dimention);
+	public void resizeWindow();
 	
 	public Camera getCamera();
 	public UserInputListener getUserInputListener();
@@ -19,7 +19,7 @@ public interface GameEngineWindow {
 	public Point getDisplayRelatedWindowCenter();
 	public Point getWindowRelatedWindowCenter();
 	
-	public void captureMouseCursor(boolean isCursorCaptured);
+	public void lockMouseCursor(boolean isCursorLocked);
 	public void setMouseCursorVisible(boolean isCursorVisible);
 	public boolean isMouseCursorVisible();
 	public boolean isMouseLocked();

@@ -42,9 +42,6 @@ public class RenderUnit {
 		
 	}
 	
-	
-	
-	
 	// Functions for transferring data
 	public void sendVBOFloatVector4Data(int VBOIndex, String attribPointerName, float[] dataBuffer) {
 		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
@@ -124,11 +121,8 @@ public class RenderUnit {
 		VBOWrapper.unbindBuffer();
 	}
 	
-	public void unbindVAO() {
-		
+	public void unbindVAO() {		
 		VAOWrapper.unbindVertexArray();
-		
-		Utils.checkOpenGLErrors();
 	}
 
 	public void unbindEBO() {

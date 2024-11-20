@@ -4,26 +4,14 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
-import org.MykytaInUA.SimpleGameEngine.objects.Camera;
 import org.MykytaInUA.SimpleGameEngine.objects.CubeGenerator;
 import org.MykytaInUA.SimpleGameEngine.objects.Object3D;
 import org.MykytaInUA.SimpleGameEngine.objects.ObjectsStorage;
 import org.MykytaInUA.SimpleGameEngine.rendering.shaders.ShaderProgram;
-import org.MykytaInUA.SimpleGameEngine.user_input.UserInputListener;
-import org.MykytaInUA.SimpleGameEngine.user_input.UserInputNEWTActionListener;
-import org.MykytaInUA.SimpleGameEngine.user_input.UserInputSwingAWTActionListener;
 import org.MykytaInUA.SimpleGameEngine.utilities.Utils;
 import org.MykytaInUA.SimpleGameEngine.window.GameEngineWindow;
 
 import static com.jogamp.opengl.GL4.*;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import javax.imageio.ImageIO;
-
 
 public class Renderer implements GLEventListener {
 	
@@ -48,12 +36,12 @@ public class Renderer implements GLEventListener {
 										  2,
 										  5);
 		
-		this.cubes.setObjects(CubeGenerator.createRandomCubes(2000, 12, 1000, 1));
+		this.cubes.setObjects(CubeGenerator.createRandomCubes(50000, 12, 1000, 1));
 		
 		gl.setSwapInterval(0);
+		
 		shaderProgram.addObjects(this.cubes);
 		shaderProgram.prepareShaderPrograms();
-		
 		shaderProgram.addCamera(window.getCamera());
 		
 		gl.glClearColor(0.2f, 0.2f, 0.0f, 1.0f);
@@ -68,7 +56,7 @@ public class Renderer implements GLEventListener {
 		
 		Utils.checkOpenGLErrors();
 		
-		window.resizeWindow(window.getWindowDimention());
+		window.resizeWindow();
 		
 		gl.glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 	}

@@ -1,16 +1,13 @@
 package org.MykytaInUA.SimpleGameEngine.user_input;
 
-import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
-import java.awt.Robot;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.MykytaInUA.SimpleGameEngine.window.GameEngineWindow;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
@@ -21,17 +18,11 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 	
 	private Set<Integer> pressedKeys = new HashSet<Integer>();
 	private List<UserInputResponser> userInputControllableList = new ArrayList<UserInputResponser>();
-	private Point mousePositionInWindow = new Point(450, 300);
-	private Point mouseShift = new Point(0, 0);
-	private float mouseWheelMovement = 0.0f;
-	private Robot robot;
+	private RelativeMouseMovementListener relativeMouseMovementListener;
+	private MouseMovementData mouseMovementData = new MouseMovementData();
 	
-	public UserInputNEWTActionListener() {
-		try {
-			robot = new Robot();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
+	public UserInputNEWTActionListener() {	
+		this.relativeMouseMovementListener = new RelativeMouseMovementListener();
 	}
 	
 	@Override
@@ -46,8 +37,7 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if(!e.isAutoRepeat()) {
-			System.out.println(e.getKeyCode());
-			this.pressedKeys.add(KeyCodeMapper.getMappedKeyFromNEWT((int) e.getKeyCode()));
+			this.pressedKeys.add(KeyCodeMapper.getMappedKeyFromNEWT(e.getKeyCode()));
 		}
 	}
 	
@@ -92,14 +82,16 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 	// Called every mouse move
 	public void mouseMoved(MouseEvent e) {
 		
+		Point mousePositionInWindow = this.mouseMovementData.getMousePositionInWindow();
+		Point mouseShift = this.mouseMovementData.getMouseShift();
+		
 		// Add to shift (shift is reseted after every frame)
-		mouseShift.x += mousePositionInWindow.x - e.getX();
-		mouseShift.y += mousePositionInWindow.y - e.getY();	
+		this.mouseMovementData.setMouseXShift(mouseShift.x + mousePositionInWindow.x - e.getX());
+		this.mouseMovementData.setMouseYShift(mouseShift.y + mousePositionInWindow.y - e.getY());	
 		
 		// Restore previous mouse position
-		mousePositionInWindow.x = e.getX();
-		mousePositionInWindow.y = e.getY();
-
+		this.mouseMovementData.setMouseXPositionInWindow(e.getX());
+		this.mouseMovementData.setMouseYPositionInWindow(e.getY());
 	}
 
 	@Override
@@ -110,21 +102,31 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 
 	@Override
 	public void mouseWheelMoved(MouseEvent e) {
-		this.mouseWheelMovement = e.getRotation()[1];
+		this.mouseMovementData.setMouseWheelMovement(e.getRotation()[1]);
 	}
 	
 	// Called every frame
 	public void updateActionsOnObjects() {
-
+		
+		this.relativeMouseMovementListener.fetchMouseData();
+		
+		this.mouseMovementData.setRelativeMouseXShift(-relativeMouseMovementListener.getXShift());
+		this.mouseMovementData.setRelativeMouseYShift(-relativeMouseMovementListener.getYShift());
+		
 		for(UserInputResponser userInputResponser: userInputControllableList) {
+			
 			this.applyPressedKeysFor(userInputResponser);
 			this.applyMouseMovementFor(userInputResponser);
 		}
 		
 		// Mouse wheel must be reset after each appliance
-		this.mouseWheelMovement = 0;
-		this.mouseShift.x = 0;
-		this.mouseShift.y = 0;
+		this.mouseMovementData.setMouseWheelMovement(0);
+		
+		this.mouseMovementData.setMouseXShift(0);
+		this.mouseMovementData.setMouseYShift(0);
+		
+		this.mouseMovementData.setRelativeMouseXShift(0);
+		this.mouseMovementData.setRelativeMouseYShift(0);
 	}
 	
 	private void applyPressedKeysFor(UserInputResponser userInputResponser) {
@@ -135,31 +137,33 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 	}
 	
 	private void applyMouseMovementFor(UserInputResponser userInputResponser) {
+		
+		float mouseWheelMovement = this.mouseMovementData.getMouseWheelMovement();
+		System.out.println("Wheel movement" + mouseWheelMovement);
+		Point2D.Float relativeMouseShift = this.mouseMovementData.getRelativeMouseShift();
+		
 		if(MouseResponser.class.isInstance(userInputResponser)) {
 			
 			MouseResponser responser = (MouseResponser)userInputResponser;
 			
-			responser.applyMouseWheelMovement(this.mouseWheelMovement);
-			responser.applyMouseMovement(this.mouseShift);	
+			responser.applyMouseWheelMovement(mouseWheelMovement);
+			responser.applyMouseMovement(relativeMouseShift);	
 		}
-	}
-
-	@Override
-	public void moveMouseCursorTo(Point position) {
-		//this.robot.mouseMove(position.x, position.y);
 	}
 
 	@Override
 	public Point getMouseCursorDisplayRelatedPosition() {
 		PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+		
         if (pointerInfo != null) {
             return pointerInfo.getLocation();
         }
+        
         return null; // Mouse is not detected, possibly disconnected
 	}
 
 	@Override
 	public Point getMouseCursorWindowRelatedPosition() {
-		return this.mousePositionInWindow;
+		return this.mouseMovementData.getMousePositionInWindow();
 	}
 }

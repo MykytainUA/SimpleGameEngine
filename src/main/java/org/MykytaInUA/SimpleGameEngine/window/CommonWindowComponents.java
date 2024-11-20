@@ -1,12 +1,10 @@
 package org.MykytaInUA.SimpleGameEngine.window;
 
-import java.awt.AWTException;
-import java.awt.Robot;
+import java.awt.Dimension;
 
 import org.MykytaInUA.SimpleGameEngine.objects.Camera;
 import org.MykytaInUA.SimpleGameEngine.rendering.PerspectiveParameters;
 import org.MykytaInUA.SimpleGameEngine.rendering.Renderer;
-import org.MykytaInUA.SimpleGameEngine.user_input.MouseCursorCapturer;
 import org.MykytaInUA.SimpleGameEngine.user_input.UserInputListener;
 import org.MykytaInUA.SimpleGameEngine.user_input.UserInputNEWTActionListener;
 import org.MykytaInUA.SimpleGameEngine.user_input.UserInputSwingAWTActionListener;
@@ -22,11 +20,14 @@ public class CommonWindowComponents {
 	private Camera camera;
 	private Renderer renderer;
 	private Animator animator;
+	private Dimension widowDimensionInPixels;
 	private boolean isCursorVisible = true;
 	private boolean isMouseLocked = false;
 	
 	public CommonWindowComponents(GameEngineWindow window) {
 		this.window = window;
+		
+		this.widowDimensionInPixels = new Dimension();
 		
 		this.initializeCamera();
 		this.initializeUserInputController();
@@ -125,6 +126,18 @@ public class CommonWindowComponents {
 	
 	public boolean isMouseLocked() {
 		return this.isMouseLocked;
+	}
+
+	public Dimension getWidowDimentionInPixels() {
+		return widowDimensionInPixels;
+	}
+
+	public void setWidowWidthInPixels(int width) {
+		this.widowDimensionInPixels.width = width;
+	}
+	
+	public void setWidowHeightInPixels(int height) {
+		this.widowDimensionInPixels.height = height;
 	}
 	
 }

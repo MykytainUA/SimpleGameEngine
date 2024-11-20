@@ -11,13 +11,19 @@ import org.MykytaInUA.SimpleGameEngine.user_input.UserInputListener;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
 
-public class GLPanelWrapper extends GLJPanel implements GameEngineWindow{
+public class GLPanelWrapper extends GLJPanel implements GameEngineWindow {
 
-private CommonWindowComponents windowComponents;
+	private static final long serialVersionUID = 1L;
+	private CommonWindowComponents windowComponents;
+	private final MainGLSwingPanelWindow frame;
 	
-	public GLPanelWrapper(GLCapabilities capabilities) {
+	public GLPanelWrapper(GLCapabilities capabilities, MainGLSwingPanelWindow frame) {
 		super(capabilities);
+		
+		this.frame = frame;
+		
 		this.windowComponents = new CommonWindowComponents(this);
+		this.setAutoSwapBufferMode(true);
 	}
 	
 	@Override
@@ -43,8 +49,8 @@ private CommonWindowComponents windowComponents;
 	}
 
 	@Override
-	public void captureMouseCursor(boolean captureCursor) {
-		// TODO Auto-generated method stub
+	public void lockMouseCursor(boolean captureCursor) {
+		this.windowComponents.setCursorLockedFlag(captureCursor);
 		
 	}
 
@@ -67,21 +73,18 @@ private CommonWindowComponents windowComponents;
 	}
 
 	@Override
-	public void setMouseCursorVisible(boolean captureCursor) {
-		// TODO Auto-generated method stub
-		
+	public void setMouseCursorVisible(boolean isCursorVisible) {
+		this.windowComponents.setCursorVisibleFlag(isCursorVisible);
 	}
 
 	@Override
 	public boolean isMouseCursorVisible() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.windowComponents.isCursorVisible();
 	}
 
 	@Override
 	public boolean isMouseLocked() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.windowComponents.isMouseLocked();
 	}
 
 	@Override
@@ -91,9 +94,24 @@ private CommonWindowComponents windowComponents;
 	}
 
 	@Override
-	public void resizeWindow(Dimension dimention) {
-		// TODO Auto-generated method stub
+	public void resizeWindow() {
 		
+		this.frame.resizeWindow();
+	}
+	
+	public Dimension getWidowDimentionInPixels() {
+		
+		return this.windowComponents.getWidowDimentionInPixels();
+	}
+
+	public void setWidowWidthInPixels(int width) {
+		
+		this.windowComponents.setWidowWidthInPixels(width);
+	}
+	
+	public void setWidowHeightInPixels(int height) {
+		
+		this.windowComponents.setWidowHeightInPixels(height);
 	}
 
 }

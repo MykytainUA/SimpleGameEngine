@@ -2,6 +2,7 @@ package org.MykytaInUA.SimpleGameEngine.window;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.Set;
 
 import org.MykytaInUA.SimpleGameEngine.objects.Camera;
@@ -11,17 +12,17 @@ import org.MykytaInUA.SimpleGameEngine.user_input.MouseResponser;
 import org.MykytaInUA.SimpleGameEngine.user_input.UserInputListener;
 import org.MykytaInUA.SimpleGameEngine.user_input.UserInputResponser;
 
-import com.jogamp.newt.Display;
-import com.jogamp.newt.Screen;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GLCapabilities;
 
 // To resize window just change widowSizeInPixels parameter
-public class MainGLNEWTWindow extends GLWindow implements GameEngineWindow, UserInputResponser , MouseResponser, KeyResponser{
+public class MainGLNEWTWindow extends GLWindow implements GameEngineWindow, 
+                                                          UserInputResponser, 
+                                                          MouseResponser, 
+                                                          KeyResponser {
 	
-	private Dimension widowSizeInPixels = new Dimension();
 	private CommonWindowComponents windowComponents;
 
 	private MainGLNEWTWindow(GLCapabilities capabilities) {
@@ -46,13 +47,16 @@ public class MainGLNEWTWindow extends GLWindow implements GameEngineWindow, User
 		
 		this.setSize(100, 100);
 		
-		this.widowSizeInPixels.width = width;
-		this.widowSizeInPixels.height = height;
+		this.windowComponents.setWidowWidthInPixels(width);
+		this.windowComponents.setWidowHeightInPixels(height);
 	}
 	
 	public MainGLNEWTWindow(GLCapabilities capabilities, boolean isFullScreen) {
+		
 		this(capabilities);	 
+		
 		this.setSize(100, 100);
+		
 		this.setFullscreen(isFullScreen);
 	}
 	
@@ -83,42 +87,61 @@ public class MainGLNEWTWindow extends GLWindow implements GameEngineWindow, User
 	@Override
 	public void showWindow() {
 		this.setVisible(true);
-		//this.resizeWindow(this.getWindowDimention());
 	}
 	
 	@Override
-	public void resizeWindow(Dimension dimention) {
-		int windowWidthInScale = (int) (widowSizeInPixels.width / this.getCurrentSurfaceScale(new float[2])[0]);
-		int windowHeightInScale = (int) (widowSizeInPixels.height / this.getCurrentSurfaceScale(new float[2])[1]);
+	public void resizeWindow() {
+		
+		Dimension windowDimension = this.windowComponents.getWidowDimentionInPixels();
+		
+		float[] surfaceScale = new float[2];
+		this.getCurrentSurfaceScale(surfaceScale);
+		
+		int windowWidthInScale = (int) (windowDimension.width / surfaceScale[0]);
+		int windowHeightInScale = (int) (windowDimension.height / surfaceScale[1]);
+		
 		this.setSize(windowWidthInScale, windowHeightInScale);
 	}
 
 	@Override
-	public void captureMouseCursor(boolean captureCursor) {
-		this.setMouseCursorVisible(!captureCursor);
-		this.confinePointer(captureCursor);
+	public void lockMouseCursor(boolean lockCursor) {
+		this.windowComponents.setCursorLockedFlag(lockCursor);
+		this.setMouseCursorVisible(!lockCursor);
+		this.confinePointer(lockCursor);
 	}
 
 	@Override
 	public Point getWindowPosition() {
-		return new Point(this.getX(), this.getY());
+		
+		float[] surfaceScale = new float[2];
+		this.getCurrentSurfaceScale(surfaceScale);
+		
+		return new Point((int) (this.getX() * surfaceScale[0]), (int) (this.getY() * surfaceScale[1]));
 	}
 
 	@Override
 	public Dimension getWindowDimention() {
-		return this.widowSizeInPixels;
+		return this.windowComponents.getWidowDimentionInPixels();
 	}
 
 	@Override
 	public Point getDisplayRelatedWindowCenter() {
-		return new Point((this.getWidth()/2) + this.getX(),
-						 (this.getHeight()/2) + this.getY());
+		
+		float[] surfaceScale = new float[2];
+		this.getCurrentSurfaceScale(surfaceScale);
+		
+		return new Point((int) (((this.getWidth()/2) + this.getX()) * surfaceScale[0]),
+						 (int) ((this.getHeight()/2) + this.getY() * surfaceScale[1]));
 	}
 	
 	@Override
 	public Point getWindowRelatedWindowCenter() {
-		return new Point((this.getWidth()/2),
-				 		(this.getHeight()/2));
+		
+		float[] surfaceScale = new float[2];
+		this.getCurrentSurfaceScale(surfaceScale);
+		
+		return new Point((int) ((this.getWidth()/2) * surfaceScale[0]),
+				 		(int) ((this.getHeight()/2)* surfaceScale[1]));
 	}
 
 	@Override
@@ -138,18 +161,12 @@ public class MainGLNEWTWindow extends GLWindow implements GameEngineWindow, User
 	}
 
 	@Override
-	public void applyMouseMovement(Point mousePosition) {
-		this.windowComponents.getUserInputListener().moveMouseCursorTo(this.getDisplayRelatedWindowCenter());
-		System.out.println("Cursor position:" + this.windowComponents.getUserInputListener().getMouseCursorDisplayRelatedPosition());
-		System.out.println("Window left corner position:" + this.getWindowPosition());
-		System.out.println("Window center position:" + this.getWindowRelatedWindowCenter());
-		System.out.println("Window size:" + this.getWindowDimention());
-		System.out.println("Surface scale:" + this.getCurrentSurfaceScale(new float[2])[0] + " " + this.getCurrentSurfaceScale(new float[2])[1]);
+	public void applyMouseMovement(Point2D mousePosition) {
+		
 	}
 
 	@Override
 	public void applyMouseWheelMovement(float direction) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -160,7 +177,7 @@ public class MainGLNEWTWindow extends GLWindow implements GameEngineWindow, User
 			switch(key) {
 			case KeyCodeMapper.VK_ESCAPE:
 				this.destroy();
-				}
 			}
+		}
 	}
 }

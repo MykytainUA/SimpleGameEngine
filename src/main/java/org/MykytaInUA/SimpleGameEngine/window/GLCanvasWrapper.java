@@ -16,10 +16,15 @@ public class GLCanvasWrapper extends GLCanvas implements GameEngineWindow {
 	private static final long serialVersionUID = 1L;
 	
 	private CommonWindowComponents windowComponents;
+	private final MainGLAWTCanvasWindow frame;
 	
-	public GLCanvasWrapper(GLCapabilities capabilities) {
+	public GLCanvasWrapper(GLCapabilities capabilities, MainGLAWTCanvasWindow frame) {
 		super(capabilities);
+		
+		this.frame = frame;
+		
 		this.windowComponents = new CommonWindowComponents(this);
+		this.setAutoSwapBufferMode(true);
 	}
 	
 	@Override
@@ -45,8 +50,8 @@ public class GLCanvasWrapper extends GLCanvas implements GameEngineWindow {
 	}
 
 	@Override
-	public void captureMouseCursor(boolean captureCursor) {
-		// TODO Auto-generated method stub
+	public void lockMouseCursor(boolean captureCursor) {
+		this.windowComponents.setCursorLockedFlag(captureCursor);
 		
 	}
 
@@ -80,8 +85,7 @@ public class GLCanvasWrapper extends GLCanvas implements GameEngineWindow {
 
 	@Override
 	public boolean isMouseLocked() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.windowComponents.isMouseLocked();
 	}
 
 	@Override
@@ -91,8 +95,23 @@ public class GLCanvasWrapper extends GLCanvas implements GameEngineWindow {
 	}
 
 	@Override
-	public void resizeWindow(Dimension dimention) {
-		// TODO Auto-generated method stub
+	public void resizeWindow() {
 		
+		this.frame.resizeWindow();
+	}
+	
+	public Dimension getWidowDimentionInPixels() {
+		
+		return this.windowComponents.getWidowDimentionInPixels();
+	}
+
+	public void setWidowWidthInPixels(int width) {
+		
+		this.windowComponents.setWidowWidthInPixels(width);
+	}
+	
+	public void setWidowHeightInPixels(int height) {
+		
+		this.windowComponents.setWidowHeightInPixels(height);
 	}
 }

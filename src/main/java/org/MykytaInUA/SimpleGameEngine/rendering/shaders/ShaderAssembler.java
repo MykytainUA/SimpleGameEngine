@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.text.Position;
-
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;

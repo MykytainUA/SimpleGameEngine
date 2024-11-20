@@ -1,49 +1,82 @@
 package org.MykytaInUA.SimpleGameEngine.window;
 
+import java.awt.AWTException;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.awt.GLJPanel;
-import com.jogamp.opengl.util.Animator;
 
 import org.MykytaInUA.SimpleGameEngine.objects.Camera;
-import org.MykytaInUA.SimpleGameEngine.rendering.PerspectiveParameters;
-import org.MykytaInUA.SimpleGameEngine.rendering.Renderer;
+import org.MykytaInUA.SimpleGameEngine.user_input.KeyCodeMapper;
+import org.MykytaInUA.SimpleGameEngine.user_input.KeyResponser;
+import org.MykytaInUA.SimpleGameEngine.user_input.MouseResponser;
 import org.MykytaInUA.SimpleGameEngine.user_input.UserInputListener;
-import org.MykytaInUA.SimpleGameEngine.user_input.UserInputSwingAWTActionListener;
-import org.joml.Vector3f;
+import org.MykytaInUA.SimpleGameEngine.user_input.UserInputResponser;
 
-public class MainGLSwingPanelWindow extends JFrame implements GameEngineWindow{
+public class MainGLSwingPanelWindow extends JFrame implements GameEngineWindow, 
+														      UserInputResponser, 
+															  MouseResponser, 
+															  KeyResponser {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private GLPanelWrapper panel;
+	private Robot robot;
 	
-	public MainGLSwingPanelWindow(GLCapabilities capabilities, int width, int height) {
-		this.panel = new GLPanelWrapper(capabilities);
-		panel.setAutoSwapBufferMode(true);
+	public MainGLSwingPanelWindow(GLCapabilities capabilities) {	
+		
+		try {
+			this.robot = new Robot();
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}	
+		
+		this.panel = new GLPanelWrapper(capabilities, this);
 		
 		this.getContentPane().add(panel);
+	}
+	
+	public MainGLSwingPanelWindow(GLCapabilities capabilities, int width, int height) {
 		
-		this.setupWindowProperties(width, height);
+		this(capabilities);
+		
+		this.panel.setWidowWidthInPixels(width);
+		this.panel.setWidowHeightInPixels(height);
+		
+		this.setupWindowProperties();
 	}
 	
 	public MainGLSwingPanelWindow(GLCapabilities capabilities, boolean isFullScreen) {	
-		this(capabilities, 900, 600);		
-		if(isFullScreen) {		
-			this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-			this.setUndecorated(true);
-		}
+		
+		this(capabilities);	
+        
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        
+        this.panel.setWidowWidthInPixels(screenSize.width);
+		this.panel.setWidowHeightInPixels(screenSize.height);
+        
+        this.setupWindowProperties();
+        
+		this.setUndecorated(true);
 	}
 	
-	private void setupWindowProperties(int width, int height) {
-		this.setSize(width, height);
+	private void setupWindowProperties() {
+		
+		this.setSize(100, 100); // default size to call init in renderer
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.panel.requestFocusInWindow();
+		
+		this.panel.getUserInputListener().add(this);
 	}
 
 	@Override
@@ -69,55 +102,96 @@ public class MainGLSwingPanelWindow extends JFrame implements GameEngineWindow{
 	}
 
 	@Override
-	public void captureMouseCursor(boolean captureCursor) {
-		// TODO Auto-generated method stub
+	public void lockMouseCursor(boolean lockCursor) {
 		
+		this.panel.lockMouseCursor(lockCursor);
+		this.setMouseCursorVisible(!lockCursor);
 	}
 
 	@Override
 	public Point getWindowPosition() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new Point(this.getX(), this.getY());
 	}
 
 	@Override
 	public Dimension getWindowDimention() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return this.panel.getWidowDimentionInPixels();
 	}
 
 	@Override
 	public Point getDisplayRelatedWindowCenter() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new Point((this.getWidth()/2) + this.getX(),
+		 				(this.getHeight()/2) + this.getY());
 	}
 
 	@Override
-	public void setMouseCursorVisible(boolean captureCursor) {
-		// TODO Auto-generated method stub
+	public void setMouseCursorVisible(boolean isMouseCursorVisible) {
 		
+		this.panel.setMouseCursorVisible(isMouseCursorVisible);
+		
+		if(isMouseCursorVisible) {
+			
+			this.setCursor(Cursor.getDefaultCursor());
+		} else {
+			
+			BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+			Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+			
+			this.setCursor(blankCursor);
+		}
 	}
 
 	@Override
 	public boolean isMouseCursorVisible() {
-		// TODO Auto-generated method stub
-		return false;
+		
+		return this.panel.isMouseCursorVisible();
 	}
 
 	@Override
 	public boolean isMouseLocked() {
-		// TODO Auto-generated method stub
-		return false;
+		
+		return this.panel.isMouseLocked();
 	}
 
 	@Override
 	public Point getWindowRelatedWindowCenter() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new Point(this.getWidth()/2 , this.getHeight()/2);
 	}
 
 	@Override
-	public void resizeWindow(Dimension dimention) {
+	public void resizeWindow() {
+		
+		this.setSize(this.panel.getWidowDimentionInPixels());
+	}
+
+	@Override
+	public void applyPressedKeys(Set<Integer> pressedKeys) {
+		
+		for (int key : pressedKeys) {
+			switch(key) {
+			case KeyCodeMapper.VK_ESCAPE:
+				this.panel.getAnimator().stop();
+				this.dispose();
+			}
+		}
+	}
+
+	@Override
+	public void applyMouseMovement(Point2D mousePosition) {
+		
+		Point windowCenter = this.getDisplayRelatedWindowCenter();
+		
+		if(this.isMouseLocked()) {
+			this.robot.mouseMove(windowCenter.x, windowCenter.y);
+		}
+	}
+
+	@Override
+	public void applyMouseWheelMovement(float direction) {
 		// TODO Auto-generated method stub
 		
 	}

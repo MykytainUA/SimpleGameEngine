@@ -3,10 +3,11 @@ package org.MykytaInUA.SimpleGameEngine.objects;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.Set;
 
 import org.MykytaInUA.SimpleGameEngine.rendering.PerspectiveParameters;
+import org.MykytaInUA.SimpleGameEngine.settings.Settings;
 import org.MykytaInUA.SimpleGameEngine.user_input.KeyCodeMapper;
 import org.MykytaInUA.SimpleGameEngine.user_input.KeyResponser;
 import org.MykytaInUA.SimpleGameEngine.user_input.MouseResponser;
@@ -38,7 +39,6 @@ public class Camera implements UserInputResponser, KeyResponser, MouseResponser 
 	
 	// Global camera parameters
 	private long lastUpdatedTimeNano = System.nanoTime();
-	private Point previousMousePosition = new Point(450, 300);
 	private float speed = 2.0f;
 
 	// ===========================
@@ -48,10 +48,11 @@ public class Camera implements UserInputResponser, KeyResponser, MouseResponser 
 	public Camera() {
 
 		// Default parameters and properties
-		this.cameraPosition = new Vector3f(0, 0, 3); 
-		this.targetPosition = new Vector3f(0, 0, 0); 
-		this.upDirection = new Vector3f(0, 1, 0);
-		this.rotation = new Vector3f(0, 0, 0);
+		this.cameraPosition = new Vector3f(Settings.startingCameraPosition); 
+		this.targetPosition = new Vector3f(Settings.startingCameraTargetPosition); 
+		this.upDirection = new Vector3f(Settings.startingCameraUpDirection);
+		this.rotation = new Vector3f(Settings.startingCameraRotation);
+		
 		this.perspectiveParameters = new PerspectiveParameters();
 
 		// Initialize matrices
@@ -367,9 +368,9 @@ public class Camera implements UserInputResponser, KeyResponser, MouseResponser 
 	}
 
 	@Override
-	public void applyMouseMovement(Point mouseShift) {
-		this.rotateY((float)Math.toRadians(mouseShift.x)/3);
-		this.rotateX((float)Math.toRadians(mouseShift.y)/3);
+	public void applyMouseMovement(Point2D mouseShift) {
+		this.rotateY((float)Math.toRadians(mouseShift.getX()) * Settings.mouseSensitivity);
+		this.rotateX((float)Math.toRadians(mouseShift.getY()) * Settings.mouseSensitivity);
 	}
 
 	@Override

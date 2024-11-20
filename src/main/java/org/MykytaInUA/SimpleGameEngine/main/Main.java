@@ -3,8 +3,6 @@ package org.MykytaInUA.SimpleGameEngine.main;
 import org.MykytaInUA.SimpleGameEngine.window.GameEngineWindow;
 import org.MykytaInUA.SimpleGameEngine.window.GameEngineWindowFactory;
 
-import com.jogamp.opengl.GLContext;
-
 public class Main {
 
 	public static void main(String[] args) {
@@ -15,8 +13,7 @@ public class Main {
 		
 		window.startRendering();
 		
-		window.captureMouseCursor(true);
-		window.setMouseCursorVisible(true);
+		window.lockMouseCursor(true);
 	}
 
 }

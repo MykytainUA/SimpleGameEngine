@@ -10,7 +10,6 @@ public interface UserInputListener {
 	public void add(UserInputResponser userInputControllable);
 	public UserInputResponser get(int index);
 	
-	public void moveMouseCursorTo(Point position);
 	public Point getMouseCursorDisplayRelatedPosition();
 	public Point getMouseCursorWindowRelatedPosition();
 }
