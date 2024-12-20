@@ -1,34 +1,48 @@
 package org.MykytaInUA.SimpleGameEngine.objects;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
-import org.MykytaInUA.SimpleGameEngine.objects.components.ComponentsStorage;
 import org.MykytaInUA.SimpleGameEngine.objects.components.mesh.MeshComponent;
 import org.MykytaInUA.SimpleGameEngine.objects.components.texture.RenderMaterialComponent;
 import org.MykytaInUA.SimpleGameEngine.objects.components.transform.TransformComponent;
 
 public abstract class Object3D {
 	
-	protected ComponentsStorage components;
+	protected List<Component> components;
 	
 	public Object3D() {
-		this.components = new ComponentsStorage();
+		components = new ArrayList<Component>();
 	}
 	
 	public Object3D(MeshComponent mesh, RenderMaterialComponent texture, 
 					ArrayList<TransformComponent> transformComponents) {
 		
-		this.components = new ComponentsStorage();
-		this.components.add(mesh);
-		this.components.add(texture);
+		components.add(mesh);
+		components.add(texture);
+		
 		for(TransformComponent iteratedComponent : transformComponents) {
-			this.components.add(iteratedComponent);	
+			components.add(iteratedComponent);
 		}
 	}
 	
-	public ComponentsStorage getComponents() {
-		return components;
+	public Component getComponentByClass(Class<? extends Component> typeOfComponent) {
+		for(Component component : components) {
+			if(typeOfComponent.isInstance(component)) {
+				return component;
+			}
+		}
+		return null;
+	}
+	
+	public Component getComponentBySuperClass(Class<? extends Component> superClassOfComponent) {
+		for (Component component : components) {
+			if(superClassOfComponent.isAssignableFrom(component.getClass())) {
+				return component;
+			}
+		}
+		return null;
 	}
 	
 	public void add(Component component) {

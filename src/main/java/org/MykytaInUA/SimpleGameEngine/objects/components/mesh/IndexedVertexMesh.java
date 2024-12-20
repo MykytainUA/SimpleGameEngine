@@ -24,7 +24,7 @@ public class IndexedVertexMesh implements MeshComponent {
 	
 	// Get default vertices for objects
 	public static class CubeMesh {
-		private static float[] vertices = new float [] {
+		private static final float[] VERTICES = new float [] {
 				1.0f, 1.0f, 1.0f,       // Front top right
 				1.0f, -1.0f, 1.0f,      // Front bottom right
 				-1.0f, 1.0f, 1.0f,      // Front top left
@@ -36,7 +36,7 @@ public class IndexedVertexMesh implements MeshComponent {
 				-1.0f, -1.0f, -1.0f     // Back bottom left
 		};
 		
-		private static int[] indices = new int[] {
+		private static final int[] INDICES = new int[] {
 				// Front side
 				2, 3, 1,
 				2, 1, 0,
@@ -62,16 +62,33 @@ public class IndexedVertexMesh implements MeshComponent {
 				7, 1, 3		
 				};
 		
+		private static final float[] TEXTURECOORDINATES = {
+				// front side texture coordinates
+				   1.0f, 1.0f,  // Front top right
+			       1.0f, 0.0f,  // Front bottom right
+			       0.0f, 1.0f,  // Front top left
+			       0.0f, 0.0f,  // Front bottom left
+			        
+			       0.0f, 1.0f,  // Back top right
+			       0.0f, 0.0f,  // Back bottom right
+			       1.0f, 0.0f,  // Back top left
+			       1.0f, 1.0f,   // Back bottom left	
+			};
+		
 		public static IndexedVertexMesh getMesh() {
-			return new IndexedVertexMesh(vertices, indices);
+			return new IndexedVertexMesh(VERTICES, INDICES);
 		}
 		
 		public static float[] getVertices() {
-			return vertices;
+			return VERTICES;
 		}
 		
 		public static int[] getIndices() {
-			return indices;
+			return INDICES;
+		}
+		
+		public static float[] getTextureCoordinates() {
+			return TEXTURECOORDINATES;
 		}
 	}
 	
@@ -122,6 +139,12 @@ public class IndexedVertexMesh implements MeshComponent {
 		int[] copiedIndices= Arrays.copyOf(indices, indices.length);
 		
 		return new IndexedVertexMesh(copiedVertices, copiedIndices);
+	}
+
+	@Override
+	public int getDataPerVertexSize() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
 

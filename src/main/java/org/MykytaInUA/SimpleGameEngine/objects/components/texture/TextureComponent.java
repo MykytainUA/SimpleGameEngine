@@ -35,4 +35,10 @@ public class TextureComponent implements RenderMaterialComponent{
 		float[] copiedTexturecoordinates = Arrays.copyOf(this.textureCoordinates, this.textureCoordinates.length);
 		return new TextureComponent(this.textureID, copiedTexturecoordinates);
 	}
+
+	@Override
+	public int getDataPerVertexSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

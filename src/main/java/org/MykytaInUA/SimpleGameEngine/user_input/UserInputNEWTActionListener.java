@@ -89,6 +89,8 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 		this.mouseMovementData.setMouseXShift(mouseShift.x + mousePositionInWindow.x - e.getX());
 		this.mouseMovementData.setMouseYShift(mouseShift.y + mousePositionInWindow.y - e.getY());	
 		
+		//System.out.println("Mouse movement data:" + this.mouseMovementData.getMouseShift());
+		
 		// Restore previous mouse position
 		this.mouseMovementData.setMouseXPositionInWindow(e.getX());
 		this.mouseMovementData.setMouseYPositionInWindow(e.getY());
@@ -139,7 +141,6 @@ public class UserInputNEWTActionListener implements UserInputListener, KeyListen
 	private void applyMouseMovementFor(UserInputResponser userInputResponser) {
 		
 		float mouseWheelMovement = this.mouseMovementData.getMouseWheelMovement();
-		System.out.println("Wheel movement" + mouseWheelMovement);
 		Point2D.Float relativeMouseShift = this.mouseMovementData.getRelativeMouseShift();
 		
 		if(MouseResponser.class.isInstance(userInputResponser)) {

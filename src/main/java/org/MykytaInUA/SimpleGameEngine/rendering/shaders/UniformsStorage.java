@@ -15,7 +15,7 @@ import org.MykytaInUA.SimpleGameEngine.utilities.Utils;
 public class UniformsStorage {
 	
 	private final Map<String, Integer> uniformMap;
-	FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
+	private FloatBuffer vals = Buffers.newDirectFloatBuffer(16);
 	private final int boundShaderID;
 	
 	public UniformsStorage(int shaderID) {

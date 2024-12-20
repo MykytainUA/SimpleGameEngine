@@ -34,22 +34,15 @@ public class ShaderAssembler {
 	
 	public static Shader getShaderByPath(String vertexShaderPath, String fragmentShaderPath, Component[] components) {
 		
+		componentsForShader = components;
+		
 		vertexShaderSource = ShaderUtilities.getShaderSourceAsString(vertexShaderPath);
 		fragmentShaderSource = ShaderUtilities.getShaderSourceAsString(fragmentShaderPath);
-		
-		// Temporary add components
-		componentsForShader = new Component[4];
-		
-		componentsForShader[0] = new PositionComponent(new Vector3f());
-		componentsForShader[1] = new RotationComponent(new Vector3f());
-		componentsForShader[2] = new SizeComponent(new Vector3f());
-		componentsForShader[3] = new SolidColorComponent(new Vector4f());
-		// 
-		
+			
 		vertexShaderSource = addDefines(vertexShaderSource);
 		fragmentShaderSource = addDefines(fragmentShaderSource);
 		
-		Shader shader= new Shader(vertexShaderSource, fragmentShaderSource);
+		Shader shader= new Shader(vertexShaderSource, fragmentShaderSource, components);
 		
 		return shader;
 	}

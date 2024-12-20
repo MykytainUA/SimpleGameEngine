@@ -4,22 +4,30 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
-import org.MykytaInUA.SimpleGameEngine.objects.CubeGenerator;
+
+import org.MykytaInUA.SimpleGameEngine.objects.Cube;
 import org.MykytaInUA.SimpleGameEngine.objects.Object3D;
-import org.MykytaInUA.SimpleGameEngine.objects.ObjectsStorage;
+import org.MykytaInUA.SimpleGameEngine.objects.Object3DRandomGenerator;
+import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
+import org.MykytaInUA.SimpleGameEngine.objects.components.texture.SolidColorComponent;
+import org.MykytaInUA.SimpleGameEngine.objects.components.transform.PositionComponent;
+import org.MykytaInUA.SimpleGameEngine.objects.components.transform.RotationComponent;
+import org.MykytaInUA.SimpleGameEngine.objects.components.transform.SizeComponent;
 import org.MykytaInUA.SimpleGameEngine.rendering.shaders.ShaderProgram;
 import org.MykytaInUA.SimpleGameEngine.utilities.Utils;
 import org.MykytaInUA.SimpleGameEngine.window.GameEngineWindow;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import static com.jogamp.opengl.GL4.*;
+
+import java.util.ArrayList;
 
 public class Renderer implements GLEventListener {
 	
 	private GameEngineWindow window;
 	
 	private ShaderProgram shaderProgram;
-	
-	private ObjectsStorage<Object3D> cubes = new ObjectsStorage<Object3D>();
 	
 	public Renderer(GameEngineWindow window) {
 		this.window = window;
@@ -29,20 +37,43 @@ public class Renderer implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {	
 		
 		GL4 gl = (GL4) GLContext.getCurrentGL();
+		
+		Object3D[] objects;
+		
 		gl.glFinish();
 		
-		shaderProgram = new ShaderProgram(".\\src\\main\\java\\shaders\\vertexShader.glsl", 
+		Component[] componentsForShader = new Component[4];
+		
+		componentsForShader[0] = new PositionComponent(new Vector3f());
+		componentsForShader[1] = new RotationComponent(new Vector3f());
+		componentsForShader[2] = new SizeComponent(new Vector3f());
+		componentsForShader[3] = new SolidColorComponent(new Vector4f());
+		
+		this.shaderProgram = new ShaderProgram(".\\src\\main\\java\\shaders\\vertexShader.glsl", 
 										  ".\\src\\main\\java\\shaders\\fragmentShader.glsl", 
-										  2,
+										  componentsForShader,
 										  5);
 		
-		this.cubes.setObjects(CubeGenerator.createRandomCubes(50000, 12, 1000, 1));
+		Object3DRandomGenerator generator = new Object3DRandomGenerator();
 		
+		ArrayList<Component> componentByCopy = new ArrayList<Component>();
+		ArrayList<Class<? extends Component>> componentByReference = new ArrayList<Class<? extends Component>>(0);
+		
+		componentByReference.add(PositionComponent.class);
+		componentByReference.add(RotationComponent.class);
+		componentByReference.add(SolidColorComponent.class);
+		componentByReference.add(SizeComponent.class);	
+		
+		objects = new Object3D[1000000];
+		
+		for (int i = 0; i < objects.length; i++) {
+			objects[i] = generator.getRandomObject(Cube.class, componentByCopy, componentByReference);
+		}
+
 		gl.setSwapInterval(0);
 		
-		shaderProgram.addObjects(this.cubes);
-		shaderProgram.prepareShaderPrograms();
-		shaderProgram.addCamera(window.getCamera());
+		this.shaderProgram.addObjects(objects);
+		this.shaderProgram.addCamera(window.getCamera());
 		
 		gl.glClearColor(0.2f, 0.2f, 0.0f, 1.0f);
 		
@@ -56,7 +87,7 @@ public class Renderer implements GLEventListener {
 		
 		Utils.checkOpenGLErrors();
 		
-		window.resizeWindow();
+		this.window.resizeWindow();
 		
 		gl.glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 	}
@@ -64,15 +95,15 @@ public class Renderer implements GLEventListener {
 	public static int frame = 0;
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		window.getUserInputListener().updateActionsOnObjects();
 		
+		this.window.getUserInputListener().updateActionsOnObjects();
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 
 		
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);
 		
-		shaderProgram.render();
+		this.shaderProgram.render();
 		
 		Utils.checkOpenGLErrors();
 	}
@@ -83,12 +114,11 @@ public class Renderer implements GLEventListener {
 		
 		gl.glViewport(0, 0, width, height);
 		
-		window.getCamera().setAspect(width, height);
+		this.window.getCamera().setAspect(width, height);
 	}
 	
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
-		
 	}
 }

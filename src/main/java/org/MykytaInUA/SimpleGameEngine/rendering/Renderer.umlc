@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<umlmark-class version="0.8.1" icons="true" show-relationships="true" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-rel="true" router="FAN">  
+  <class id="1" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.VBOWrapper" project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/VBOWrapper.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1217" y="1778"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.shaders.UniformsStorage" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/shaders/UniformsStorage.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="196" width="312" x="672" y="755"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.Renderer" project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/Renderer.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1229" y="380"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.shaders.RenderUnit" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/shaders/RenderUnit.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="592" width="391" x="1024" y="755"/>    
+    <display resize-to-fit="false" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.shaders.Shader" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/shaders/Shader.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="214" width="312" x="1454" y="755"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.shaders.ShaderAssembler" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/shaders/ShaderAssembler.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="156" width="312" x="565" y="354"/>    
+    <display resize-to-fit="false" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.TextureStorage" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/TextureStorage.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1534" y="508"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.shaders.ShaderProgram" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/shaders/ShaderProgram.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1228" y="605"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.shaders.ShaderUtilities" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/shaders/ShaderUtilities.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1560" y="334"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.VAOWrapper" project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/VAOWrapper.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="926" y="1473"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.PerspectiveParameters" 
+    project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/PerspectiveParameters.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1817" y="572"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.VBOStorage" project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/VBOStorage.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1216" y="1454"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="org.MykytaInUA.SimpleGameEngine.rendering.EBOWrapper" project="SimpleGameEngine" 
+    file="/SimpleGameEngine/src/main/java/org/MykytaInUA/SimpleGameEngine/rendering/EBOWrapper.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1565" y="1472"/>    
+    <display resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" sort="true" 
+      accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="false"/>      
+      <operations public="true" package="true" protected="true" private="true" static="false"/>    
+    </display>  
+  </class>  
+  <association id="14">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="15" name="EBO"/>      
+      <multiplicity id="16" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="17">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="18" name="vbos"/>      
+      <multiplicity id="19" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="20">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="21" name="VAO"/>      
+      <multiplicity id="22" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="23">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="24" name="SHADER"/>      
+      <multiplicity id="25" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="26">    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="27" name="shaderProgram"/>      
+      <multiplicity id="28" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="8" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="29">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="30" name="uniformsStorage"/>      
+      <multiplicity id="31" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="32">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="33" name="renderUnits"/>      
+      <multiplicity id="34" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="35">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="36" name="VBO"/>      
+      <multiplicity id="37" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="12" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-attribute resize-to-fit="true" stereotype="true" package="true" default-value="false" signature="true" 
+    sort="true" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="false"/>    
+    <operations public="true" package="true" protected="true" private="true" static="false"/>  
+  </classifier-attribute>  
+  <association-attribute labels="true" multiplicity="true"/>
+</umlmark-class>

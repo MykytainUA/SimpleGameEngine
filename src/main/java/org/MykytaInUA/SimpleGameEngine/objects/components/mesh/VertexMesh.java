@@ -21,4 +21,10 @@ public class VertexMesh implements MeshComponent{
 		return new VertexMesh(copiedVertices);
 	}
 
+	@Override
+	public int getDataPerVertexSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

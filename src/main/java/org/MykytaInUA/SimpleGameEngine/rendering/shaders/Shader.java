@@ -6,21 +6,21 @@ import static com.jogamp.opengl.GL2ES2.GL_VERTEX_SHADER;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
 
+import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
 import org.MykytaInUA.SimpleGameEngine.utilities.Utils;
 
 public class Shader {
-	private int shaderID = -1;
 	
-	public Shader() {
-		
-	}
+	private int shaderID = -1;
+	private final Component[] components;
 	
 	/**
 	 * Create shader from file
 	 * @param vertexShaderPath path to vertex shader
 	 * @param fragmentShaderPath path to fragment shader
 	 */
-	public Shader(String vertexShaderPath, String fragmentShaderPath) {
+	public Shader(String vertexShaderPath, String fragmentShaderPath, Component[] components) {
+		this.components = components;
 		this.createShaderByPath(vertexShaderPath, fragmentShaderPath);
 	}
 	
@@ -29,12 +29,17 @@ public class Shader {
 	 * @param vertexShaderPath source of a vertex shader
 	 * @param fragmentShaderPath source of a fragment shader
 	 */
-	public Shader(String[] vertexShaderPath, String[] fragmentShaderPath) {
+	public Shader(String[] vertexShaderPath, String[] fragmentShaderPath, Component[] components) {
+		this.components = components;
 		this.createShaderBySource(vertexShaderPath, fragmentShaderPath);
 	}
 	
 	public int getShaderID() {
 		return this.shaderID;
+	}
+	
+	public Component[] getComponents() {
+		return components;
 	}
 	
 	private void createShaderByPath(String vertexShaderPath, String fragmentShaderPath) {

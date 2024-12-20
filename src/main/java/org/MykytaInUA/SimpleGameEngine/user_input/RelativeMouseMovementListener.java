@@ -3,32 +3,19 @@ package org.MykytaInUA.SimpleGameEngine.user_input;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
+import net.java.games.input.Event;
+import net.java.games.input.EventQueue;
 
 public class RelativeMouseMovementListener {
 	
-	Controller[] controllers;
-	Controller mouse;
+	private Controller[] controllers;
+	private Controller activeMouse = null;
 	
-	//Data
 	private float xShift = 0;
 	private float yShift = 0;
 	
 	public RelativeMouseMovementListener() {
 		this.controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-        this.mouse = null;
-
-        for (Controller controller : controllers) {
-            if (controller.getType() == Controller.Type.MOUSE) {
-                mouse = controller;
-                System.out.println("Mouse Found: " + mouse.getName());
-                break;
-            }
-        }
-        
-        if (mouse == null) {
-            System.out.println("No mouse found!");
-            return;
-        }
 	}
 	
 	/**
@@ -36,20 +23,24 @@ public class RelativeMouseMovementListener {
 	 * must be called to get current data
 	 */
 	public void fetchMouseData() {
-		if (mouse.poll()) {
-			Component[] components = mouse.getComponents();
-            
-            for (Component component : components) {
-                if (component.getIdentifier() == Component.Identifier.Axis.X) {
-                	this.setXShift(component.getPollData());
-                } else if (component.getIdentifier() == Component.Identifier.Axis.Y){
-                	this.setYShift(component.getPollData());
-                }
-            }
-            
-        } else {
-            System.out.println("Mouse not responding!!!");
-        }
+
+		if(this.activeMouse == null) {	
+			this.activeMouse = this.tryToGetCurrentActiveMouse();
+		}
+		
+		if (activeMouse != null && activeMouse.poll()) {
+			
+			Component[] components = activeMouse.getComponents();
+			
+			for (Component component : components) {
+				if (component.getIdentifier() == Component.Identifier.Axis.X) {
+
+					this.setXShift(component.getPollData());
+					
+				} else if (component.getIdentifier() == Component.Identifier.Axis.Y){
+					
+					this.setYShift(component.getPollData());
+				}}}
 	}
 	
 	public float getXShift() {
@@ -66,6 +57,29 @@ public class RelativeMouseMovementListener {
 
 	private void setYShift(float yShift) {
 		this.yShift = yShift;
+	}
+	
+	private Controller tryToGetCurrentActiveMouse() {
+		
+		Controller activeMouse = null;
+		for (Controller controller : controllers) {
+            if (controller.getType() == Controller.Type.MOUSE) {
+
+                controller.poll();
+                EventQueue queue = controller.getEventQueue();
+                Event mouseEvent = new Event();
+                
+                // Check if there is an event in the queue
+                while (queue.getNextEvent(mouseEvent)) {
+                    activeMouse = controller;
+                    // Stop searching after detecting activity
+                    break;
+                }
+                if (activeMouse != null) break;
+            }
+        }
+		
+		return activeMouse;
 	}
 
 }
