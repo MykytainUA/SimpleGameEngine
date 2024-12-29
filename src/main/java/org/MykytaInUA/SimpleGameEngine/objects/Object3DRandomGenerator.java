@@ -19,7 +19,7 @@ public class Object3DRandomGenerator {
 	private static final Primitive3DObjectBuilder OBJECT_BUILDER = new Primitive3DObjectBuilder();
 	
 	
-	private static final float MAX_DISTANCE = 1000;
+	private static final float MAX_DISTANCE = 2000;
 	private static final float MAX_ANGLE_ROTATION = 360;
 	
 	public Object3D getRandomObject(Class<? extends Object3D> object3DType, 
@@ -69,6 +69,10 @@ public class Object3DRandomGenerator {
 		}
 			
 		return null;
+	}
+	
+	public void setSeed(int seed) {
+		RANDOMIZER.setSeed(seed);
 	}
 	
 }

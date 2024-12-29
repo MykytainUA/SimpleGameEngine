@@ -40,7 +40,7 @@ public class VBOWrapper {
 	
 	public static void bufferFloatData(FloatBuffer bufferToSend, int usage) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
-
+		
 		gl.glBufferData(GL_ARRAY_BUFFER, bufferToSend.limit() * Float.BYTES, bufferToSend, usage);
 		
 		Utils.checkOpenGLErrors();
@@ -118,168 +118,33 @@ public class VBOWrapper {
 	}
 	
 	// High abstraction functions
-	
-	public void sendVBOFloatVector4Data(int program, String attribPointerName, float[] dataBuffer) {
+	public void sendVBOFloatVectorInstancedData(int program, String attribPointerName, int size, FloatBuffer dataBuffer) {
 		this.bindBuffer();
 		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-				attribPointerName,
-				4,
-				GL_FLOAT,
-				false,
-				0,
-				0);
-		
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendVBOFloatVector4Data(int program, String attribPointerName, FloatBuffer dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-				attribPointerName,
-				4,
-				GL_FLOAT,
-				false,
-				0,
-				0);
-		
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendFloatVector4InstancedData(int program, String attribPointerName, float[] dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-							attribPointerName,
-							4,
-							GL_FLOAT,
-							false,
-							0,
-							0);
-		
-		vertexAttribDivisor(program, attribPointerName, 1);
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendFloatVector4InstancedData(int program, String attribPointerName, FloatBuffer dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-							attribPointerName,
-							4,
-							GL_FLOAT,
-							false,
-							0,
-							0);
-		
-		vertexAttribDivisor(program, attribPointerName, 1);
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendVBOFloatVector3Data(int program, String attribPointerName, float[] dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-				attribPointerName,
-				3,
-				GL_FLOAT,
-				false,
-				0,
-				0);
-		
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendVBOFloatVector3Data(int program, String attribPointerName, FloatBuffer dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-				attribPointerName,
-				3,
-				GL_FLOAT,
-				false,
-				0,
-				0);
-		
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendFloatVector3InstancedData(int program, String attribPointerName, float[] dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-							attribPointerName,
-							3,
-							GL_FLOAT,
-							false,
-							0,
-							0);
-		
-		vertexAttribDivisor(program, attribPointerName, 1);
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendFloatVector3InstancedData(int program, String attribPointerName, FloatBuffer dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program, 
-							attribPointerName,
-							3,
-							GL_FLOAT,
-							false,
-							0,
-							0);
-		
-		vertexAttribDivisor(program, attribPointerName, 1);
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendVBOFloatVector2Data(int program, String attribPointerName, float[] dataBuffer) {
-		this.bindBuffer();
+//		while(dataBuffer.hasRemaining()) {
+//			System.out.println(dataBuffer.get());
+//		}
 		
 		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
 		vertexAttribPointer(program,
-				attribPointerName,
-				2,
-				GL_FLOAT,
-				false,
-				0,
-				0);
+							attribPointerName,
+							size,
+							GL_FLOAT,
+							false,
+							0,
+							0);
 		
+		vertexAttribDivisor(program, attribPointerName, 1);
 		enableVertexAttribArray(program, attribPointerName);
 	}
 	
-	public void sendVBOFloatVector2Data(int program, String attribPointerName, FloatBuffer dataBuffer) {
-		this.bindBuffer();
-		
-		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program,
-				attribPointerName,
-				2,
-				GL_FLOAT,
-				false,
-				0,
-				0);
-		
-		enableVertexAttribArray(program, attribPointerName);
-	}
-	
-	public void sendVBOFloatVector2InstancedData(int program, String attribPointerName, float[] dataBuffer) {
+	public void sendVBOFloatVectorInstancedData(int program, String attribPointerName, int size, float[] dataBuffer) {
 		this.bindBuffer();
 		
 		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
 		vertexAttribPointer(program,
 							attribPointerName,
-							2,
+							size,
 							GL_FLOAT,
 							false,
 							0,
@@ -289,20 +154,33 @@ public class VBOWrapper {
 		enableVertexAttribArray(program, attribPointerName);
 	}
 	
-	public void sendVBOFloatVector2InstancedData(int program, String attribPointerName, FloatBuffer dataBuffer) {
+	public void sendVBOFloatVectorData(int program, String attribPointerName, int size, FloatBuffer dataBuffer) {
 		this.bindBuffer();
 		
 		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-		vertexAttribPointer(program,
-							attribPointerName,
-							2,
-							GL_FLOAT,
-							false,
-							0,
-							0);
+		vertexAttribPointer(program, 
+				attribPointerName,
+				size,
+				GL_FLOAT,
+				false,
+				0,
+				0);
 		
-		vertexAttribDivisor(program, attribPointerName, 1);
 		enableVertexAttribArray(program, attribPointerName);
 	}
-
+	
+	public void sendVBOFloatVectorData(int program, String attribPointerName, int size, float[] dataBuffer) {
+		this.bindBuffer();
+		
+		bufferFloatData(dataBuffer, GL_STATIC_DRAW);
+		vertexAttribPointer(program, 
+				attribPointerName,
+				size,
+				GL_FLOAT,
+				false,
+				0,
+				0);
+		
+		enableVertexAttribArray(program, attribPointerName);
+	}
 }

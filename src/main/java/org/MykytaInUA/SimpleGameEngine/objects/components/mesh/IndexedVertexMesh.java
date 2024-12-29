@@ -1,5 +1,6 @@
 package org.MykytaInUA.SimpleGameEngine.objects.components.mesh;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
@@ -8,6 +9,8 @@ public class IndexedVertexMesh implements MeshComponent {
 	
 	private final int[] indices;
 	protected float[] vertices;
+	
+	public static final String ATTRIBUTE_POINTER_NAME = "vertices";
 	
 	public IndexedVertexMesh(float[] vertices, int[] indices) {
 		this.vertices = vertices;
@@ -143,8 +146,19 @@ public class IndexedVertexMesh implements MeshComponent {
 
 	@Override
 	public int getDataPerVertexSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.getVertices().length;
+	}
+
+	@Override
+	public int getTotalDataSize() {
+		return this.getVertices().length * 4;
+	}
+
+	@Override
+	public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
+		for (int i = 0; i < this.getVertices().length; i++) {
+			destinationBuffer.putFloat(this.getVertices()[i]);
+		}
 	}
 }
 

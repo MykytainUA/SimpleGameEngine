@@ -3,11 +3,11 @@ package org.MykytaInUA.SimpleGameEngine.rendering.shaders;
 import static com.jogamp.opengl.GL.GL_TRIANGLES;
 import static com.jogamp.opengl.GL.GL_UNSIGNED_INT;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 
 import org.MykytaInUA.SimpleGameEngine.objects.Object3D;
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
@@ -32,7 +32,9 @@ public class RenderUnit {
 	private final VBOStorage VBO;
 	private final EBOWrapper EBO;
 	private int objectsCount;
-	private IndexedVertexMesh currentMesh = null;
+	private int indicesCount = 0;
+	
+	private ObjectToDataConverter objectToBufferConverter = new ObjectToDataConverter();
 	
 	public RenderUnit(int boundShaderID, int vbosCount) {
 		
@@ -63,76 +65,31 @@ public class RenderUnit {
 		objectsCount += objects.length;
 		
 		this.getVAO().bindVertexArray();
-
-		float[] arrayData3 = new float[objects.length * 3];
-		float[] arrayData4 = new float[objects.length * 4];	
 		
-		currentMesh = null;
-		if(objects[0].getComponentBySuperClass(MeshComponent.class) instanceof IndexedVertexMesh) {
-			currentMesh = (IndexedVertexMesh)objects[0].getComponentBySuperClass(MeshComponent.class);
-		}
+		this.sendMeshData(objects);
 		
 		// Iterate over components
 		for (int i = 0; i < components.length; i++) {
 			
-			// Iterate over objects
-			for (int j = 0; j < objects.length; j++) {
-				if(components[i].getClass() == PositionComponent.class) {
-					
-					PositionComponent positionComponent = (PositionComponent) objects[j].getComponentByClass(PositionComponent.class);
-					arrayData3[j * positionComponent.getDataPerVertexSize()] = positionComponent.getPosition().x;
-					arrayData3[j * positionComponent.getDataPerVertexSize() + 1] = positionComponent.getPosition().y;
-					arrayData3[j * positionComponent.getDataPerVertexSize() + 2] = positionComponent.getPosition().z;
-					
-				} else if (components[i].getClass() == RotationComponent.class) {
-					
-					RotationComponent rotationComponent = (RotationComponent) objects[j].getComponentByClass(RotationComponent.class);
-					arrayData3[j * rotationComponent.getDataPerVertexSize()] = rotationComponent.getRotation().x;
-					arrayData3[j * rotationComponent.getDataPerVertexSize() + 1] =  rotationComponent.getRotation().y;
-					arrayData3[j * rotationComponent.getDataPerVertexSize() + 2] =  rotationComponent.getRotation().z;
-					
-				} else if (components[i].getClass() == SolidColorComponent.class) {
-					
-					SolidColorComponent solidColorComponent = (SolidColorComponent) objects[j].getComponentByClass(SolidColorComponent.class);
-					arrayData4[j * solidColorComponent.getDataPerVertexSize()] = solidColorComponent.getColor().x;
-					arrayData4[j * solidColorComponent.getDataPerVertexSize() + 1] = solidColorComponent.getColor().y;
-					arrayData4[j * solidColorComponent.getDataPerVertexSize() + 2] = solidColorComponent.getColor().z;
-					arrayData4[j * solidColorComponent.getDataPerVertexSize() + 3] = solidColorComponent.getColor().w;
-					
-				} else if (components[i].getClass() == SizeComponent.class) {
-					
-					SizeComponent sizeComponent = (SizeComponent) objects[j].getComponentByClass(SizeComponent.class);
-					arrayData3[j * sizeComponent.getDataPerVertexSize() + 0] = sizeComponent.getSize().x;
-					arrayData3[j * sizeComponent.getDataPerVertexSize() + 1] =  sizeComponent.getSize().y;
-					arrayData3[j * sizeComponent.getDataPerVertexSize() + 2] =  sizeComponent.getSize().z;
-					
-				}
-			}
-			
-			FloatBuffer floatBufferData;
-			
-			// Set vertices
-			this.sendVBOFloatVector3Data(0, "vertices",  currentMesh.getVertices());
-			
-			// Set indices 
-			this.sendEBOStaticIntegerData(0, currentMesh.getIndices());
-			
 			// Send data to GPU
-			if(components[i].getClass() == PositionComponent.class) {
-				floatBufferData = FloatBuffer.wrap(arrayData3);
-				this.sendVBOFloatVector3InstancedData(1, PositionComponent.ATTRIBUTE_POINTER_NAME, floatBufferData);
+			FloatBuffer buf = this.objectToBufferConverter.getComponentsAsFloatBuffer(components[i].getClass(), objects);
+			buf.rewind();
+
+			if(components[i].getClass() == PositionComponent.class) {		
+				this.sendVBOFloatVectorInstancedData(1, PositionComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);	
 			} else if(components[i].getClass() == RotationComponent.class) {
-				floatBufferData = FloatBuffer.wrap(arrayData3);
-				this.sendVBOFloatVector3InstancedData(2, RotationComponent.ATTRIBUTE_POINTER_NAME, floatBufferData);
+				
+				this.sendVBOFloatVectorInstancedData(2, RotationComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);
+			
 			} else if(components[i].getClass() == SizeComponent.class) {
-				floatBufferData = FloatBuffer.wrap(arrayData3);
-				this.sendVBOFloatVector3InstancedData(4, SizeComponent.ATTRIBUTE_POINTER_NAME, floatBufferData);
+				
+				this.sendVBOFloatVectorInstancedData(3, SizeComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);
+				
 			} else if(components[i].getClass() == SolidColorComponent.class) {
-				floatBufferData = FloatBuffer.wrap(arrayData4);
-				this.sendVBOFloatVector4InstancedData(3, SolidColorComponent.ATTRIBUTE_POINTER_NAME, floatBufferData);
+				
+				this.sendVBOFloatVectorInstancedData(4, SolidColorComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);
 			} 
 		}
-		
 		this.unbindBuffers();
 	}
 	
@@ -147,78 +104,35 @@ public class RenderUnit {
 		this.bindThisRenderUnit();
 		
 		// Print cubes
-		gl.glDrawElementsInstanced(GL_TRIANGLES, currentMesh.getIndices().length, GL_UNSIGNED_INT, 0, this.getObjectsCount());
+		gl.glDrawElementsInstanced(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0, this.getObjectsCount());
 		
 		this.unbindBuffers();
 	}
 	
-	// Functions for transferring data
-	public void sendVBOFloatVector4Data(int VBOIndex, String attribPointerName, float[] dataBuffer) {
+	public void sendVBOFloatVectorInstancedData(int VBOIndex, String attribPointerName, int size, FloatBuffer dataBuffer) {
 		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector4Data(boundShaderID, attribPointerName, dataBuffer);
+		vboWrapper.sendVBOFloatVectorInstancedData(boundShaderID, attribPointerName, size, dataBuffer);
 	}
 	
-	public void sendVBOFloatVector4Data(int VBOIndex, String attribPointerName, FloatBuffer dataBuffer) {
+	public void sendVBOFloatVectorData(int VBOIndex, String attribPointerName, int size, FloatBuffer dataBuffer) {
 		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector4Data(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector4InstancedData(int VBOIndex, String attribPointerName, float[] dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendFloatVector4InstancedData(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector4InstancedData(int VBOIndex, String attribPointerName, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendFloatVector4InstancedData(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector3Data(int VBOIndex, String attribPointerName, float[] dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector3Data(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector3Data(int VBOIndex, String attribPointerName, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector3Data(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector3InstancedData(int VBOIndex, String attribPointerName, float[] dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendFloatVector3InstancedData(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector3InstancedData(int VBOIndex, String attribPointerName, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendFloatVector3InstancedData(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector2Data(int VBOIndex, String attribPointerName, float[] dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector2Data(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector2Data(int VBOIndex, String attribPointerName, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector2Data(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector2InstancedData(int VBOIndex, String attribPointerName, float[] dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector2InstancedData(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendVBOFloatVector2InstancedData(int VBOIndex, String attribPointerName, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVector2InstancedData(boundShaderID, attribPointerName, dataBuffer);
-	}
-	
-	public void sendEBOStaticIntegerData(int renderUnitIndex, int[] dataBuffer) {
-		this.getEBO().sendStaticIntegerData(dataBuffer);
+		vboWrapper.sendVBOFloatVectorData(boundShaderID, attribPointerName, size, dataBuffer);
 	}
 	
 	public void sendEBOStaticIntegerData(int renderUnitIndex, IntBuffer dataBuffer) {
 		this.getEBO().sendStaticIntegerData(dataBuffer);
+	}
+	
+	public void sendMeshData(Object3D[] objects) {
+		// Send vertices
+		FloatBuffer vertexBuffer = this.objectToBufferConverter.getComponentsAsFloatBuffer(IndexedVertexMesh.class, objects);			
+		// Set vertices
+		this.sendVBOFloatVectorData(0, IndexedVertexMesh.ATTRIBUTE_POINTER_NAME, 3, vertexBuffer);
+		
+		IntBuffer indicesBuffer = this.objectToBufferConverter.getMeshIntData(IndexedVertexMesh.class, objects);	
+		indicesCount = indicesBuffer.capacity();
+		// Set indices 
+		this.sendEBOStaticIntegerData(0, indicesBuffer);
 	}
 	
 	public void unbindBuffers() {
@@ -237,5 +151,91 @@ public class RenderUnit {
 
 	public void unbindEBO() {
 		EBOWrapper.unbindBuffer();
+	}
+}
+
+/**
+ * Buffer data is not saved after resizing
+ */
+class ObjectToDataConverter {
+	
+	ByteBuffer currentBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+
+	public ObjectToDataConverter() {
+		super();
+	}
+	
+	public <T extends Component> FloatBuffer getComponentsAsFloatBuffer(Class<T> componentType, Object3D[] objects) {
+		
+		this.checkForNull(componentType, objects);
+		
+		if(MeshComponent.class.isAssignableFrom(componentType)) {
+			T componentExample = (T) objects[0].getComponentByClass(componentType);
+			
+			this.ensureBufferCapacity(componentExample.getTotalDataSize());
+			
+			T component = (T) objects[0].getComponentByClass(componentType);
+	        component.writeComponentDataToBuffer(currentBuffer);
+	        
+	        this.currentBuffer.rewind();
+			
+	        return this.currentBuffer.asFloatBuffer();
+		}
+		
+		T componentExample = (T) objects[0].getComponentByClass(componentType);
+		this.ensureBufferCapacity(objects.length * componentExample.getTotalDataSize());
+		
+		for (Object3D object : objects) {
+	        T component = (T) object.getComponentByClass(componentType);
+	        component.writeComponentDataToBuffer(currentBuffer);
+	    }
+		
+		this.currentBuffer.rewind();
+	    return this.currentBuffer.asFloatBuffer();
+	}
+	
+	public <T extends Component> IntBuffer getMeshIntData(Class<T> componentType, Object3D[] objects) {
+		
+		if(componentType == IndexedVertexMesh.class) {
+			IndexedVertexMesh mesh = (IndexedVertexMesh) objects[0].getComponentByClass(componentType);
+			this.ensureBufferCapacity(mesh.getIndices().length * 4);
+			
+			for (int i = 0; i < mesh.getIndices().length; i++) {
+				this.currentBuffer.putInt(mesh.getIndices()[i]);
+			}
+		}
+		
+		this.currentBuffer.rewind();
+		
+		return this.currentBuffer.asIntBuffer();
+	}
+	
+	/**
+	 * @param neededCapacity capacity in bytes that buffer must have
+	 * If not enough memory is available allocates new memory in buffer
+	 */
+	private void ensureBufferCapacity(int requiredCapacity) {
+		if(!bufferHasEnoughCapacity(requiredCapacity)) {	
+			this.currentBuffer = ByteBuffer.allocateDirect(requiredCapacity).order(ByteOrder.nativeOrder());
+		}
+		
+		this.currentBuffer.rewind();
+	}
+	
+	/**
+	 * @param neededCapacity capacity in bites that buffer must have
+	 * @return boolean true if buffer has enough memory false otherwise
+	 */
+	private boolean bufferHasEnoughCapacity(int neededCapacity) {
+		return currentBuffer.capacity() >= neededCapacity;
+	}
+	
+	private void checkForNull(Class componentType, Object3D[] objects) {
+		if (objects == null || objects.length == 0) {
+		    throw new IllegalArgumentException("Object array cannot be null or empty.");
+		}
+		if (componentType == null) {
+		    throw new IllegalArgumentException("Component type cannot be null.");
+		}
 	}
 }

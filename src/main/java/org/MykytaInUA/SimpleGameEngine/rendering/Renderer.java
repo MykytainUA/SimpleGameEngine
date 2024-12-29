@@ -21,6 +21,8 @@ import org.joml.Vector4f;
 
 import static com.jogamp.opengl.GL4.*;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class Renderer implements GLEventListener {
@@ -64,7 +66,7 @@ public class Renderer implements GLEventListener {
 		componentByReference.add(SolidColorComponent.class);
 		componentByReference.add(SizeComponent.class);	
 		
-		objects = new Object3D[1000000];
+		objects = new Object3D[200000];
 		
 		for (int i = 0; i < objects.length; i++) {
 			objects[i] = generator.getRandomObject(Cube.class, componentByCopy, componentByReference);
@@ -92,13 +94,12 @@ public class Renderer implements GLEventListener {
 		gl.glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
 	}
 	
-	public static int frame = 0;
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		
 		this.window.getUserInputListener().updateActionsOnObjects();
+		
 		GL4 gl = (GL4) GLContext.getCurrentGL();
-
 		
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		gl.glClear(GL_DEPTH_BUFFER_BIT);

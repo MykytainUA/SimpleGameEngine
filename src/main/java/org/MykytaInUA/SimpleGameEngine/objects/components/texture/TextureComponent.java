@@ -1,5 +1,6 @@
 package org.MykytaInUA.SimpleGameEngine.objects.components.texture;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
@@ -40,5 +41,17 @@ public class TextureComponent implements RenderMaterialComponent{
 	public int getDataPerVertexSize() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	@Override
+	public int getTotalDataSize() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
+		// TODO Auto-generated method stub
+		
 	}
 }
