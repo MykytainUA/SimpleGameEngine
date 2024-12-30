@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 
 import org.MykytaInUA.SimpleGameEngine.objects.Object3D;
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
@@ -61,35 +62,34 @@ public class RenderUnit {
 		return objectsCount;
 	}
 	
-	public void sendObjectsToGPU(Object3D[] objects, Component[] components) {
+	public void sendObjectsToGPU(Object3D[] objects, List<Component> components) {
 		objectsCount += objects.length;
 		
 		this.getVAO().bindVertexArray();
 		
 		this.sendMeshData(objects);
 		
-		// Iterate over components
-		for (int i = 0; i < components.length; i++) {
-			
+		for(Component component : components) {
 			// Send data to GPU
-			FloatBuffer buf = this.objectToBufferConverter.getComponentsAsFloatBuffer(components[i].getClass(), objects);
+			FloatBuffer buf = this.objectToBufferConverter.getComponentsAsFloatBuffer(component.getClass(), objects);
 			buf.rewind();
-
-			if(components[i].getClass() == PositionComponent.class) {		
-				this.sendVBOFloatVectorInstancedData(1, PositionComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);	
-			} else if(components[i].getClass() == RotationComponent.class) {
-				
-				this.sendVBOFloatVectorInstancedData(2, RotationComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);
 			
-			} else if(components[i].getClass() == SizeComponent.class) {
+			if(component.getClass() == PositionComponent.class) {		
+				this.sendVBOFloatVectorInstancedData(1, PositionComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);	
+			} else if(component.getClass() == RotationComponent.class) {
 				
-				this.sendVBOFloatVectorInstancedData(3, SizeComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);
+				this.sendVBOFloatVectorInstancedData(2, RotationComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);
+			
+			} else if(component.getClass() == SizeComponent.class) {
 				
-			} else if(components[i].getClass() == SolidColorComponent.class) {
+				this.sendVBOFloatVectorInstancedData(3, SizeComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);
 				
-				this.sendVBOFloatVectorInstancedData(4, SolidColorComponent.ATTRIBUTE_POINTER_NAME, components[i].getDataPerVertexSize(), buf);
+			} else if(component.getClass() == SolidColorComponent.class) {
+				
+				this.sendVBOFloatVectorInstancedData(4, SolidColorComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);
 			} 
 		}
+		
 		this.unbindBuffers();
 	}
 	

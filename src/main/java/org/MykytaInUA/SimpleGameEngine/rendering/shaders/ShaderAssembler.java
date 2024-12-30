@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
+import org.MykytaInUA.SimpleGameEngine.objects.components.mesh.MeshComponent;
 import org.MykytaInUA.SimpleGameEngine.objects.components.texture.SolidColorComponent;
 import org.MykytaInUA.SimpleGameEngine.objects.components.texture.TextureComponent;
 import org.MykytaInUA.SimpleGameEngine.objects.components.transform.PositionComponent;
@@ -20,7 +19,7 @@ public class ShaderAssembler {
 	private static String[] vertexShaderSource;
 	private static String[] fragmentShaderSource;
 	
-	private static Component[] componentsForShader;
+	private static List<Component> componentsForShader = new ArrayList<Component>();
 	
 	private static Map<Class<? extends Component>, String> definesMap = new HashMap<Class<? extends Component>, String>();
 	
@@ -32,7 +31,7 @@ public class ShaderAssembler {
 		definesMap.put(TextureComponent.class, "#define TEXTURE_COMPONENT\n");
 	}
 	
-	public static Shader getShaderByPath(String vertexShaderPath, String fragmentShaderPath, Component[] components) {
+	public static Shader getShaderByPath(String vertexShaderPath, String fragmentShaderPath, List<Component> components) {
 		
 		componentsForShader = components;
 		
@@ -42,7 +41,7 @@ public class ShaderAssembler {
 		vertexShaderSource = addDefines(vertexShaderSource);
 		fragmentShaderSource = addDefines(fragmentShaderSource);
 		
-		Shader shader= new Shader(vertexShaderSource, fragmentShaderSource, components);
+		Shader shader = new Shader(vertexShaderSource, fragmentShaderSource, components);
 		
 		return shader;
 	}
@@ -64,11 +63,15 @@ public class ShaderAssembler {
 		}
 		
 		// Form insertion data (defines)
-		for (int i = 0; i < componentsForShader.length; i++) {
-			if(definesMap.containsKey(componentsForShader[i].getClass())) {
-				sourceCodeAsList.add(macroPlaceholderIndex + 1, definesMap.get(componentsForShader[i].getClass()));
+		for (Component component : componentsForShader) {
+			if(definesMap.containsKey(component.getClass())) {
+				sourceCodeAsList.add(macroPlaceholderIndex + 1, definesMap.get(component.getClass()));
 			} else {
-				System.out.println("Unknown component");
+				
+				// Ignore mesh components
+				if(!MeshComponent.class.isAssignableFrom(component.getClass())) {
+					System.out.println("Unknown component:" + component);
+				} 
 			}
 		}
 		

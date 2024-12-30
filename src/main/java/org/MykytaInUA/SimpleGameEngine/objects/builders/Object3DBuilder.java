@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.MykytaInUA.SimpleGameEngine.objects.Object3D;
 import org.MykytaInUA.SimpleGameEngine.objects.components.Component;

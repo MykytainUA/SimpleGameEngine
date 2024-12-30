@@ -16,13 +16,9 @@ import org.MykytaInUA.SimpleGameEngine.objects.components.transform.SizeComponen
 import org.MykytaInUA.SimpleGameEngine.rendering.shaders.ShaderProgram;
 import org.MykytaInUA.SimpleGameEngine.utilities.Utils;
 import org.MykytaInUA.SimpleGameEngine.window.GameEngineWindow;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import static com.jogamp.opengl.GL4.*;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class Renderer implements GLEventListener {
@@ -48,9 +44,9 @@ public class Renderer implements GLEventListener {
 		ArrayList<Class<? extends Component>> componentByReference = new ArrayList<Class<? extends Component>>(0);
 		
 		componentByReference.add(RotationComponent.class);
-		componentByReference.add(SolidColorComponent.class);
-		componentByReference.add(SizeComponent.class);	
-		componentByReference.add(PositionComponent.class);
+		componentByCopy.add(SolidColorComponent.class);
+		componentByCopy.add(SizeComponent.class);	
+		componentByCopy.add(PositionComponent.class);
 		
 		Object3DRandomGenerator generator = new Object3DRandomGenerator(componentByReference);
 		
@@ -60,18 +56,9 @@ public class Renderer implements GLEventListener {
 			objects[i] = generator.getRandomObject(Cube.class, componentByCopy);
 		}
 		
-		//ArrayList<Component> componentByCopy2 = (ArrayList<Component>) objects[0].getComponents();
-		
-		Component[] componentsForShader = new Component[4];
-		
-		componentsForShader[0] = new PositionComponent(new Vector3f());
-		componentsForShader[1] = new RotationComponent(new Vector3f());
-		componentsForShader[2] = new SizeComponent(new Vector3f());
-		componentsForShader[3] = new SolidColorComponent(new Vector4f());
-		
 		this.shaderProgram = new ShaderProgram(".\\src\\main\\java\\shaders\\vertexShader.glsl", 
 										  ".\\src\\main\\java\\shaders\\fragmentShader.glsl", 
-										  componentsForShader,
+										  objects[0].getComponentClasses(),
 										  5);
 
 		gl.setSwapInterval(0);

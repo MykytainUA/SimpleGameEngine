@@ -1,6 +1,7 @@
 package org.MykytaInUA.SimpleGameEngine.rendering.shaders;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
@@ -18,7 +19,7 @@ public class ShaderProgram {
 	
 	public ShaderProgram(String vertexShaderPath, 
 						 String fragmentShaderPath,  
-						 Component[] componentsForShader,
+						 List<Component> componentsForShader,
 						 int vbosCountPerUnit) {
 		
 		this.SHADER = ShaderAssembler.getShaderByPath(vertexShaderPath, fragmentShaderPath, componentsForShader);
