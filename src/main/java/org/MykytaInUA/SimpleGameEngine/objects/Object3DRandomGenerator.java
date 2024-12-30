@@ -13,22 +13,16 @@ import org.MykytaInUA.SimpleGameEngine.objects.components.transform.SizeComponen
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public class Object3DRandomGenerator {
-	
+public class Object3DRandomGenerator {	
+
 	private static final Random RANDOMIZER = new Random();
 	private static final Primitive3DObjectBuilder OBJECT_BUILDER = new Primitive3DObjectBuilder();
 	
-	
-	private static final float MAX_DISTANCE = 2000;
+	private static final float MAX_DISTANCE = 200;
 	private static final float MAX_ANGLE_ROTATION = 360;
 	
-	public Object3D getRandomObject(Class<? extends Object3D> object3DType, 
-									ArrayList<Component> componentTypesByCopy,
-									ArrayList<Class<? extends Component>> componentTypesByReference) {
-		
-		OBJECT_BUILDER.setObject3DType(object3DType);
-		
-		OBJECT_BUILDER.setComponentsByCopy(componentTypesByCopy);
+	public Object3DRandomGenerator(ArrayList<Class<? extends Component>> componentTypesByReference) {
+		super();
 		
 		ArrayList<Component> componentByReference = new ArrayList<Component>();
 		
@@ -37,6 +31,21 @@ public class Object3DRandomGenerator {
 		}
 		
 		OBJECT_BUILDER.setComponentsByReference(componentByReference);
+	}
+	
+	public Object3D getRandomObject(Class<? extends Object3D> object3DType, 
+									ArrayList<Class<? extends Component>> componentTypesByCopy) {
+		
+		OBJECT_BUILDER.setObject3DType(object3DType);
+		
+		
+		ArrayList<Component> componentByCopy = new ArrayList<Component>();
+		
+		for(Class<? extends Component> componentClass : componentTypesByCopy) {
+			componentByCopy.add(this.getRandomizedComponent(componentClass));
+		}
+		
+		OBJECT_BUILDER.setComponentsByCopy(componentByCopy);
 		
 		return OBJECT_BUILDER.getObject();
 	}

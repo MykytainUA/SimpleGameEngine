@@ -44,6 +44,24 @@ public class Renderer implements GLEventListener {
 		
 		gl.glFinish();
 		
+		ArrayList<Class<? extends Component>> componentByCopy = new ArrayList<Class<? extends Component>>(0);
+		ArrayList<Class<? extends Component>> componentByReference = new ArrayList<Class<? extends Component>>(0);
+		
+		componentByReference.add(RotationComponent.class);
+		componentByReference.add(SolidColorComponent.class);
+		componentByReference.add(SizeComponent.class);	
+		componentByReference.add(PositionComponent.class);
+		
+		Object3DRandomGenerator generator = new Object3DRandomGenerator(componentByReference);
+		
+		objects = new Object3D[100000];
+		
+		for (int i = 0; i < objects.length; i++) {
+			objects[i] = generator.getRandomObject(Cube.class, componentByCopy);
+		}
+		
+		//ArrayList<Component> componentByCopy2 = (ArrayList<Component>) objects[0].getComponents();
+		
 		Component[] componentsForShader = new Component[4];
 		
 		componentsForShader[0] = new PositionComponent(new Vector3f());
@@ -55,22 +73,6 @@ public class Renderer implements GLEventListener {
 										  ".\\src\\main\\java\\shaders\\fragmentShader.glsl", 
 										  componentsForShader,
 										  5);
-		
-		Object3DRandomGenerator generator = new Object3DRandomGenerator();
-		
-		ArrayList<Component> componentByCopy = new ArrayList<Component>();
-		ArrayList<Class<? extends Component>> componentByReference = new ArrayList<Class<? extends Component>>(0);
-		
-		componentByReference.add(PositionComponent.class);
-		componentByReference.add(RotationComponent.class);
-		componentByReference.add(SolidColorComponent.class);
-		componentByReference.add(SizeComponent.class);	
-		
-		objects = new Object3D[200000];
-		
-		for (int i = 0; i < objects.length; i++) {
-			objects[i] = generator.getRandomObject(Cube.class, componentByCopy, componentByReference);
-		}
 
 		gl.setSwapInterval(0);
 		

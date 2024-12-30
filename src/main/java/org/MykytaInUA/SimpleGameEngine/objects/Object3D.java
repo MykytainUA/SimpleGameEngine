@@ -48,5 +48,9 @@ public abstract class Object3D {
 	public void add(Component component) {
 		components.add(component);
 	}
+	
+//	public List<Component> getComponentClasses() {
+//		return new ArrayList<Component>(components);
+//	}
 }
 
