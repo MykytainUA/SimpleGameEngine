@@ -1,241 +1,122 @@
-package org.MykytaInUA.SimpleGameEngine.rendering.shaders;
+package org.mykytainua.simplegameengine.rendering.shaders;
 
 import static com.jogamp.opengl.GL.GL_TRIANGLES;
 import static com.jogamp.opengl.GL.GL_UNSIGNED_INT;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.List;
-
-import org.MykytaInUA.SimpleGameEngine.objects.Object3D;
-import org.MykytaInUA.SimpleGameEngine.objects.components.Component;
-import org.MykytaInUA.SimpleGameEngine.objects.components.mesh.IndexedVertexMesh;
-import org.MykytaInUA.SimpleGameEngine.objects.components.mesh.MeshComponent;
-import org.MykytaInUA.SimpleGameEngine.objects.components.texture.SolidColorComponent;
-import org.MykytaInUA.SimpleGameEngine.objects.components.transform.PositionComponent;
-import org.MykytaInUA.SimpleGameEngine.objects.components.transform.RotationComponent;
-import org.MykytaInUA.SimpleGameEngine.objects.components.transform.SizeComponent;
-import org.MykytaInUA.SimpleGameEngine.rendering.EBOWrapper;
-import org.MykytaInUA.SimpleGameEngine.rendering.VAOWrapper;
-import org.MykytaInUA.SimpleGameEngine.rendering.VBOStorage;
-import org.MykytaInUA.SimpleGameEngine.rendering.VBOWrapper;
-
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
-
-public class RenderUnit {
-	
-	private int boundShaderID;
-	private final VAOWrapper VAO;
-	private final VBOStorage VBO;
-	private final EBOWrapper EBO;
-	private int objectsCount;
-	private int indicesCount = 0;
-	
-	private ObjectToDataConverter objectToBufferConverter = new ObjectToDataConverter();
-	
-	public RenderUnit(int boundShaderID, int vbosCount) {
-		
-		this.boundShaderID = boundShaderID;
-		
-		VAO = new VAOWrapper();
-		VBO = new VBOStorage(vbosCount);
-		EBO = new EBOWrapper();
-	}
-	
-	public VAOWrapper getVAO() {
-		return VAO;
-	}
-	
-	public VBOStorage getVBOStorage() {
-		return VBO;
-	}
-	
-	public EBOWrapper getEBO() {
-		return EBO;
-	}
-	
-	public int getObjectsCount() {
-		return objectsCount;
-	}
-	
-	public void sendObjectsToGPU(Object3D[] objects, List<Component> components) {
-		objectsCount += objects.length;
-		
-		this.getVAO().bindVertexArray();
-		
-		this.sendMeshData(objects);
-		
-		for(Component component : components) {
-			// Send data to GPU
-			FloatBuffer buf = this.objectToBufferConverter.getComponentsAsFloatBuffer(component.getClass(), objects);
-			buf.rewind();
-			
-			if(component.getClass() == PositionComponent.class) {		
-				this.sendVBOFloatVectorInstancedData(1, PositionComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);	
-			} else if(component.getClass() == RotationComponent.class) {
-				
-				this.sendVBOFloatVectorInstancedData(2, RotationComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);
-			
-			} else if(component.getClass() == SizeComponent.class) {
-				
-				this.sendVBOFloatVectorInstancedData(3, SizeComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);
-				
-			} else if(component.getClass() == SolidColorComponent.class) {
-				
-				this.sendVBOFloatVectorInstancedData(4, SolidColorComponent.ATTRIBUTE_POINTER_NAME, component.getDataPerVertexSize(), buf);
-			} 
-		}
-		
-		this.unbindBuffers();
-	}
-	
-	private void bindThisRenderUnit() {
-		this.getVAO().bindVertexArray();
-	}
-	
-	// render this RenderUnit
-	public void render() {
-		GL4 gl = (GL4) GLContext.getCurrentGL();
-		
-		this.bindThisRenderUnit();
-		
-		// Print cubes
-		gl.glDrawElementsInstanced(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0, this.getObjectsCount());
-		
-		this.unbindBuffers();
-	}
-	
-	public void sendVBOFloatVectorInstancedData(int VBOIndex, String attribPointerName, int size, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVectorInstancedData(boundShaderID, attribPointerName, size, dataBuffer);
-	}
-	
-	public void sendVBOFloatVectorData(int VBOIndex, String attribPointerName, int size, FloatBuffer dataBuffer) {
-		VBOWrapper vboWrapper = this.getVBOStorage().getVBOWrapper(VBOIndex);
-		vboWrapper.sendVBOFloatVectorData(boundShaderID, attribPointerName, size, dataBuffer);
-	}
-	
-	public void sendEBOStaticIntegerData(int renderUnitIndex, IntBuffer dataBuffer) {
-		this.getEBO().sendStaticIntegerData(dataBuffer);
-	}
-	
-	public void sendMeshData(Object3D[] objects) {
-		// Send vertices
-		FloatBuffer vertexBuffer = this.objectToBufferConverter.getComponentsAsFloatBuffer(IndexedVertexMesh.class, objects);			
-		// Set vertices
-		this.sendVBOFloatVectorData(0, IndexedVertexMesh.ATTRIBUTE_POINTER_NAME, 3, vertexBuffer);
-		
-		IntBuffer indicesBuffer = this.objectToBufferConverter.getMeshIntData(IndexedVertexMesh.class, objects);	
-		indicesCount = indicesBuffer.capacity();
-		// Set indices 
-		this.sendEBOStaticIntegerData(0, indicesBuffer);
-	}
-	
-	public void unbindBuffers() {
-		this.unbindVBO();
-		this.unbindVAO();
-		this.unbindEBO();
-	}
-	
-	public void unbindVBO() {
-		VBOWrapper.unbindBuffer();
-	}
-	
-	public void unbindVAO() {		
-		VAOWrapper.unbindVertexArray();
-	}
-
-	public void unbindEBO() {
-		EBOWrapper.unbindBuffer();
-	}
-}
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import org.mykytainua.simplegameengine.objects.Object3D;
+import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.rendering.GPUDataAccessor;
+import org.mykytainua.simplegameengine.rendering.buffers.VAOWrapper;
 
 /**
- * Buffer data is not saved after resizing
+ * The {@code RenderUnit} class manages the rendering of objects with shared
+ * components using a single vao and GPU data accessor.
  */
-class ObjectToDataConverter {
-	
-	ByteBuffer currentBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+public class RenderUnit {
 
-	public ObjectToDataConverter() {
-		super();
-	}
-	
-	public <T extends Component> FloatBuffer getComponentsAsFloatBuffer(Class<T> componentType, Object3D[] objects) {
-		
-		this.checkForNull(componentType, objects);
-		
-		if(MeshComponent.class.isAssignableFrom(componentType)) {
-			T componentExample = (T) objects[0].getComponentByClass(componentType);
-			
-			this.ensureBufferCapacity(componentExample.getTotalDataSize());
-			
-			T component = (T) objects[0].getComponentByClass(componentType);
-	        component.writeComponentDataToBuffer(currentBuffer);
-	        
-	        this.currentBuffer.rewind();
-			
-	        return this.currentBuffer.asFloatBuffer();
-		}
-		
-		T componentExample = (T) objects[0].getComponentByClass(componentType);
-		this.ensureBufferCapacity(objects.length * componentExample.getTotalDataSize());
-		
-		for (Object3D object : objects) {
-	        T component = (T) object.getComponentByClass(componentType);
-	        component.writeComponentDataToBuffer(currentBuffer);
-	    }
-		
-		this.currentBuffer.rewind();
-	    return this.currentBuffer.asFloatBuffer();
-	}
-	
-	public <T extends Component> IntBuffer getMeshIntData(Class<T> componentType, Object3D[] objects) {
-		
-		if(componentType == IndexedVertexMesh.class) {
-			IndexedVertexMesh mesh = (IndexedVertexMesh) objects[0].getComponentByClass(componentType);
-			this.ensureBufferCapacity(mesh.getIndices().length * 4);
-			
-			for (int i = 0; i < mesh.getIndices().length; i++) {
-				this.currentBuffer.putInt(mesh.getIndices()[i]);
-			}
-		}
-		
-		this.currentBuffer.rewind();
-		
-		return this.currentBuffer.asIntBuffer();
-	}
-	
-	/**
-	 * @param neededCapacity capacity in bytes that buffer must have
-	 * If not enough memory is available allocates new memory in buffer
-	 */
-	private void ensureBufferCapacity(int requiredCapacity) {
-		if(!bufferHasEnoughCapacity(requiredCapacity)) {	
-			this.currentBuffer = ByteBuffer.allocateDirect(requiredCapacity).order(ByteOrder.nativeOrder());
-		}
-		
-		this.currentBuffer.rewind();
-	}
-	
-	/**
-	 * @param neededCapacity capacity in bites that buffer must have
-	 * @return boolean true if buffer has enough memory false otherwise
-	 */
-	private boolean bufferHasEnoughCapacity(int neededCapacity) {
-		return currentBuffer.capacity() >= neededCapacity;
-	}
-	
-	private void checkForNull(Class componentType, Object3D[] objects) {
-		if (objects == null || objects.length == 0) {
-		    throw new IllegalArgumentException("Object array cannot be null or empty.");
-		}
-		if (componentType == null) {
-		    throw new IllegalArgumentException("Component type cannot be null.");
-		}
-	}
+    private final VAOWrapper vao;
+    private final GPUDataAccessor dataSender;
+    private final Set<Component> components;
+    private int objectsCount;
+
+    /**
+     * Constructs a new {@code RenderUnit} for rendering objects with the specified shader.
+     *
+     * @param boundShaderID The ID of the shader program.
+     * @param objects       The array of {@code Object3D} instances to be rendered.
+     */
+    public RenderUnit(int boundShaderID, Object3D[] objects) {
+        this.vao = new VAOWrapper();
+
+        // Initialize GPU data accessor
+        this.dataSender = new GPUDataAccessor(
+            this.vao,
+            objects[0].getComponentClasses().size() + 1,
+            boundShaderID,
+            objects
+        );
+
+        // Store object components
+        HashSet<Component> objectComponents = new HashSet<>(objects[0].getComponentClasses());
+        this.components = Collections.unmodifiableSet(objectComponents);
+        this.objectsCount = objects.length;
+    }
+
+    /**
+     * Renders all objects managed by this {@code RenderUnit}.
+     */
+    public void render() {
+        GL4 gl = (GL4) GLContext.getCurrentGL();
+
+        this.bindThisRenderUnit();
+
+        gl.glDrawElementsInstanced(
+            GL_TRIANGLES,
+            this.dataSender.getEbo().getIndicesCount(),
+            GL_UNSIGNED_INT,
+            0,
+            this.objectsCount
+        );
+
+        this.dataSender.unbindAllBuffers();
+    }
+
+    /**
+     * Adds new objects to this render unit, ensuring they share the same components.
+     *
+     * @param objects The array of {@code Object3D} instances to add.
+     * @throws IllegalArgumentException if the objects' components do not match this
+     *                                  {@code RenderUnit}.
+     */
+    public void addObjects(Object3D[] objects) {
+        if (!this.components.containsAll(objects[0].getComponentClasses())) {
+            throw new IllegalArgumentException(
+                "Objects' components do not match this RenderUnit's components. "
+                + "No objects were added."
+            );
+        }
+
+        this.objectsCount += objects.length;
+    }
+
+    /**
+     * Gets the vao wrapper associated with this render unit.
+     *
+     * @return The {@code VAOWrapper}.
+     */
+    public VAOWrapper getVao() {
+        return vao;
+    }
+
+    /**
+     * Gets the number of objects managed by this render unit.
+     *
+     * @return The object count.
+     */
+    public int getObjectsCount() {
+        return objectsCount;
+    }
+
+    /**
+     * Gets the immutable set of components shared by all objects in this render unit.
+     *
+     * @return A {@code Set} of {@code Component} instances.
+     */
+    public Set<Component> getComponents() {
+        return this.components;
+    }
+
+    /**
+     * Binds the vao associated with this render unit.
+     */
+    private void bindThisRenderUnit() {
+        this.vao.bindVertexArray();
+    }
 }
+
+
