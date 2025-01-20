@@ -14,16 +14,16 @@ public class Settings {
 
     // Camera settings
     // The initial position of the camera in 3D space
-    public static Vector3f startingCameraPosition = new Vector3f(0, 0, 3);
+    public static final Vector3f startingCameraPosition = new Vector3f(0, 0, 3);
 
     // The initial target position for the camera (the point the camera looks at)
-    public static Vector3f startingCameraTargetPosition = new Vector3f(0, 0, 0);
+    public static final Vector3f startingCameraTargetPosition = new Vector3f(0, 0, 0);
 
     // The initial up direction for the camera (usually the Y-axis in most cases)
-    public static Vector3f startingCameraUpDirection = new Vector3f(0, 1, 0);
+    public static final Vector3f startingCameraUpDirection = new Vector3f(0, 1, 0);
 
     // The initial rotation of the camera in 3D space
-    public static Vector3f startingCameraRotation = new Vector3f(0, 0, 0);
+    public static final Vector3f startingCameraRotation = new Vector3f(0, 0, 0);
 
     // Camera's field of view in radians (1.047 radians ≈ 60 degrees)
     public static float startingCameraFieldOfView = 1.047f;

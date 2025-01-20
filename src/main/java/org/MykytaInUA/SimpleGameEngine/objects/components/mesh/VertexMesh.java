@@ -2,6 +2,8 @@ package org.mykytainua.simplegameengine.objects.components.mesh;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -15,7 +17,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * <p>This class provides functionality for deep copying vertex data, retrieving
  * vertex information, and interfacing with rendering buffers.</p>
  */
-public class VertexMesh implements Mesh {
+public class VertexMesh implements Mesh,
+                                   Bufferable {
 
     /**
      * The array of vertex data for this mesh. Each element represents a coordinate

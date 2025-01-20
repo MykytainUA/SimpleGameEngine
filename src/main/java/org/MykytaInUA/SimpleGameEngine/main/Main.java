@@ -24,7 +24,7 @@ public class Main {
      *             implementation)
      */
     public static void main(String[] args) {
-        GameEngineWindow window = GameEngineWindowFactory.getNEWTWindow(true);
+        GameEngineWindow window = GameEngineWindowFactory.getNEWTWindow(500,500);
 
         window.showWindow();
 

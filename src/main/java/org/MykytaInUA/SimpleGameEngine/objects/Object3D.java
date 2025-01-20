@@ -20,7 +20,7 @@ public abstract class Object3D {
     /**
      * A list of components associated with this 3D object.
      */
-    protected List<Component> components;
+    protected List<Component> components = new ArrayList<Component>(0);
 
     /**
      * The mesh component of the 3D object, representing its geometry.
@@ -32,7 +32,7 @@ public abstract class Object3D {
      * state.
      */
     public Object3D() {
-        components = new ArrayList<Component>(0);
+
     }
 
     /**

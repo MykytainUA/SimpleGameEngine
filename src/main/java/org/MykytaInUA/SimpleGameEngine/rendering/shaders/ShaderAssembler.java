@@ -36,12 +36,12 @@ import org.mykytainua.simplegameengine.objects.components.transform.SizeComponen
  * reuse shaders across different game objects by simply passing in the
  * appropriate list of components.</p>
  *
- * @see Shader
+ * @see StaticShader
  * @see Component
  */
 public class ShaderAssembler {
 
-    // Shader source code variables
+    // StaticShader source code variables
     private static String[] vertexShaderSource;
     private static String[] fragmentShaderSource;
 
@@ -64,14 +64,14 @@ public class ShaderAssembler {
 
     /**
      * This method generates a shader by reading the shader source files, adding
-     * component-specific defines, and returning the corresponding Shader object.
+     * component-specific defines, and returning the corresponding StaticShader object.
      *
      * @param vertexShaderPath   the path to the vertex shader source file
      * @param fragmentShaderPath the path to the fragment shader source file
      * @param components         the list of components associated with the object
-     * @return the generated Shader object with the appropriate defines
+     * @return the generated StaticShader object with the appropriate defines
      */
-    public static Shader getShaderByPath(String vertexShaderPath, String fragmentShaderPath,
+    public static StaticShader getShaderByPath(String vertexShaderPath, String fragmentShaderPath,
             List<Component> components) {
 
         // Assign the components for the shader
@@ -86,8 +86,8 @@ public class ShaderAssembler {
         fragmentShaderSource = addDefines(fragmentShaderSource);
 
         // Create and return the shader
-        Shader shader = new Shader(vertexShaderSource, fragmentShaderSource, components);
-        return shader;
+        StaticShader staticShader = new StaticShader(vertexShaderSource, fragmentShaderSource, components);
+        return staticShader;
     }
 
     /**

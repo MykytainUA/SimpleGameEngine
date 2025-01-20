@@ -5,6 +5,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.mykytainua.simplegameengine.objects.Object3D;
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 import org.mykytainua.simplegameengine.objects.components.mesh.IndexedVertexMesh;
 import org.mykytainua.simplegameengine.objects.components.mesh.Mesh;
@@ -43,14 +44,14 @@ public class ObjectToDataBufferConverter {
         this.checkForNull(componentType, objects);
 
         // Get an example component from the first object to determine the buffer size
-        Component componentExample = (Component) objects[0].getComponentByClass(componentType);
+        Bufferable componentExample = (Bufferable) objects[0].getComponentByClass(componentType);
 
         // Ensure the buffer has enough capacity for the given number of objects
         this.ensureBufferCapacity(objects.length * componentExample.getTotalDataSize());
 
         // Iterate over the objects and write the component data to the buffer
         for (Object3D object : objects) {
-            Component component = (Component) object.getComponentByClass(componentType);
+            Bufferable component = (Bufferable) object.getComponentByClass(componentType);
             component.writeComponentDataToBuffer(currentBuffer);
         }
 

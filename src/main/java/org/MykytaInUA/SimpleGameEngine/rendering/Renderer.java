@@ -1,26 +1,21 @@
 package org.mykytainua.simplegameengine.rendering;
 
 
-import static com.jogamp.opengl.GL4.GL_BACK;
-import static com.jogamp.opengl.GL4.GL_BLEND;
-import static com.jogamp.opengl.GL4.GL_CCW;
 import static com.jogamp.opengl.GL4.GL_COLOR_BUFFER_BIT;
-import static com.jogamp.opengl.GL4.GL_CULL_FACE;
 import static com.jogamp.opengl.GL4.GL_DEPTH_BUFFER_BIT;
-import static com.jogamp.opengl.GL4.GL_DEPTH_TEST;
-import static com.jogamp.opengl.GL4.GL_LESS;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import java.util.ArrayList;
-import org.mykytainua.simplegameengine.objects.Cube;
 import org.mykytainua.simplegameengine.objects.Object3D;
+import org.mykytainua.simplegameengine.objects.Pyramid;
 import org.mykytainua.simplegameengine.objects.RandomObjectGenerator;
 import org.mykytainua.simplegameengine.objects.components.Component;
 import org.mykytainua.simplegameengine.objects.components.texture.SolidColorComponent;
 import org.mykytainua.simplegameengine.objects.components.transform.PositionComponent;
+import org.mykytainua.simplegameengine.objects.components.transform.RotationComponent;
 import org.mykytainua.simplegameengine.rendering.shaders.ShaderProgram;
 import org.mykytainua.simplegameengine.utilities.Utils;
 import org.mykytainua.simplegameengine.window.GameEngineWindow;
@@ -61,24 +56,24 @@ public class Renderer implements GLEventListener {
         // Ensure all previous OpenGL commands have been completed.
         gl.glFinish();
 
-        // Initialize OpenGL settings.
-        this.initOpenGLSettings(drawable);
-
         // Set up component classes for objects.
         ArrayList<Class<? extends Component>> componentByCopy = new ArrayList<>(0);
-        ArrayList<Class<? extends Component>> componentByReference = new ArrayList<>(0);
 
         // Add components that are copied to objects.
         componentByCopy.add(SolidColorComponent.class);
         componentByCopy.add(PositionComponent.class);
-
+        componentByCopy.add(RotationComponent.class);
+        
+        // Add components by reference.
+        ArrayList<Class<? extends Component>> componentByReference = new ArrayList<>(0);
+        
         // Initialize the random object generator.
         generator = new RandomObjectGenerator(componentByReference);
 
         // Create and initialize objects with random data.
         Object3D[] objects = new Object3D[1000];
         for (int i = 0; i < objects.length; i++) {
-            objects[i] = generator.getRandomObject(Cube.class, componentByCopy);
+            objects[i] = generator.getRandomObject(Pyramid.class, componentByCopy);
         }
 
         // Initialize shader program with shaders and objects.
@@ -138,7 +133,8 @@ public class Renderer implements GLEventListener {
 
         // Update the OpenGL viewport to match the new window size.
         gl.glViewport(0, 0, width, height);
-
+        System.out.println(drawable.getSurfaceWidth() + " - " + width);
+        
         // Update the camera's aspect ratio based on the new window size.
         this.window.getCamera().setAspect(width, height);
     }
@@ -152,36 +148,5 @@ public class Renderer implements GLEventListener {
     @Override
     public void dispose(GLAutoDrawable drawable) {
         // Cleanup resources here (currently not implemented).
-    }
-
-    /**
-     * Initializes various OpenGL settings such as swap interval, clear color, depth
-     * testing, and culling.
-     *
-     * @param drawable The OpenGL drawable context.
-     */
-    private void initOpenGLSettings(GLAutoDrawable drawable) {
-        GL4 gl = (GL4) GLContext.getCurrentGL();
-
-        // Set the swap interval to enable vsync (1 for enabling, 0 for disabling).
-        gl.setSwapInterval(1);
-
-        // Set the clear color to black.
-        gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-        // Enable depth testing and set the depth function.
-        gl.glEnable(GL_DEPTH_TEST);
-        gl.glDepthFunc(GL_LESS);
-
-        // Disable blending.
-        gl.glDisable(GL_BLEND);
-
-        // Enable face culling and set the culling mode to remove back faces.
-        gl.glEnable(GL_CULL_FACE);
-        gl.glCullFace(GL_BACK);
-        gl.glFrontFace(GL_CCW);
-
-        // Set the initial OpenGL viewport.
-        gl.glViewport(0, 0, drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
     }
 }

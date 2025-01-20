@@ -2,6 +2,8 @@ package org.mykytainua.simplegameengine.objects.components.texture;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -15,7 +17,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * <p>Implements the {@link RenderMaterialComponent} interface to provide
  * rendering material functionality for 3D rendering engines.</p>
  */
-public class TextureComponent implements RenderMaterialComponent {
+public class TextureComponent implements RenderMaterialComponent,
+                                         Bufferable {
 
     /**
      * An array of texture coordinates for the object.

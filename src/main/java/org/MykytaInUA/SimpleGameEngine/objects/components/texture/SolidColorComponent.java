@@ -2,6 +2,7 @@ package org.mykytainua.simplegameengine.objects.components.texture;
 
 import java.nio.ByteBuffer;
 import org.joml.Vector4f;
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -15,7 +16,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * <p>Implements the {@link RenderMaterialComponent} interface to provide
  * functionality for rendering materials in the context of a 3D engine.</p>
  */
-public class SolidColorComponent implements RenderMaterialComponent {
+public class SolidColorComponent implements RenderMaterialComponent, 
+                                            Bufferable {
 
     /**
      * The color represented as a {@link Vector4f} with RGBA channels.

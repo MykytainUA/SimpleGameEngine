@@ -3,6 +3,7 @@ package org.mykytainua.simplegameengine.rendering;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.mykytainua.simplegameengine.objects.Object3D;
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 import org.mykytainua.simplegameengine.objects.components.mesh.IndexedVertexMesh;
 import org.mykytainua.simplegameengine.objects.components.mesh.Mesh;
@@ -123,9 +124,11 @@ public class GPUDataAccessor {
             if (component.getAttrubutePointerName() != null) {
                 // Send component data to vbo as instanced data
                 VBOWrapper vbo = this.getVbo().getVBOWrapper(vboIndex);
+                Bufferable bufferable = (Bufferable) component;
+                
                 vbo.sendVBOFloatVectorInstancedData(this.boundShaderID,
                                                     component.getAttrubutePointerName(), 
-                                                    component.getDataPerVertexSize(), 
+                                                    bufferable.getDataPerVertexSize(), 
                                                     buf);
 
                 vboIndex++; // Increment the vbo index for the next component

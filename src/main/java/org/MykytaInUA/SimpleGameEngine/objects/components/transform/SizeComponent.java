@@ -2,6 +2,7 @@ package org.mykytainua.simplegameengine.objects.components.transform;
 
 import java.nio.ByteBuffer;
 import org.joml.Vector3f;
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -14,7 +15,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * transformation-related operations within the game engine.</p>
  * 
  */
-public class SizeComponent implements Transform {
+public class SizeComponent implements Transform, 
+                                      Bufferable {
 
     private Vector3f size;
 

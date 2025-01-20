@@ -2,6 +2,8 @@ package org.mykytainua.simplegameengine.objects.components.mesh;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -9,7 +11,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * stores vertices and indices to define a shape and provides methods for
  * handling and copying the mesh data.
  */
-public class IndexedVertexMesh implements Mesh {
+public class IndexedVertexMesh implements Mesh, 
+                                          Bufferable {
 
     private final int[] indices;
     protected float[] vertices;

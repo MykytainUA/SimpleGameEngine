@@ -117,7 +117,7 @@ public class Utils {
         if (len[0] > 0) {
             log = new byte[len[0]];
             gl.glGetShaderInfoLog(shader, len[0], charWritten, 0, log, 0);
-            System.out.println("Shader info Log:");
+            System.out.println("StaticShader info Log:");
             for (int i = 0; i < log.length; i++) {
                 System.out.print((char) log[i]);
             }

@@ -2,6 +2,7 @@ package org.mykytainua.simplegameengine.objects.components.transform;
 
 import java.nio.ByteBuffer;
 import org.joml.Vector3f;
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -9,7 +10,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * stored as a {@link Vector3f}, and this component provides methods for
  * managing and retrieving position-related data.
  */
-public class PositionComponent implements Transform {
+public class PositionComponent implements Transform,
+                                          Bufferable {
 
     /** The position vector of the component. */
     private Vector3f position;

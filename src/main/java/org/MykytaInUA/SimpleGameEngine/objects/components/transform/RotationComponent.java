@@ -2,6 +2,7 @@ package org.mykytainua.simplegameengine.objects.components.transform;
 
 import java.nio.ByteBuffer;
 import org.joml.Vector3f;
+import org.mykytainua.simplegameengine.objects.components.Bufferable;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
 /**
@@ -16,7 +17,8 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * <p>Instances of this class are used to manage the rotational state of 3D
  * objects in a consistent and efficient manner.</p>
  */
-public class RotationComponent implements Transform {
+public class RotationComponent implements Transform,
+                                          Bufferable {
 
     private Vector3f rotation;
 
