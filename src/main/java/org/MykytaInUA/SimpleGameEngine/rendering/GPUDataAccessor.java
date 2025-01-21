@@ -115,7 +115,7 @@ public class GPUDataAccessor {
         
         FloatBuffer buf;
         // Initialize additional component data in GPU memory
-        for (Component component : objects[0].getComponentClasses()) {
+        for (Component component : objects[0].getComponents()) {
             // Convert component data to a FloatBuffer
             buf = this.objectToBufferConverter.getComponentAsFloatBuffer(component.getClass(), 
                                                                          objects);

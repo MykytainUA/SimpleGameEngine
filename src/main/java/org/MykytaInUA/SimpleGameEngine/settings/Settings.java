@@ -41,5 +41,5 @@ public class Settings {
     public static float startingCameraZFar = 1000.0f;
 
     // Flag to enable or disable logging (useful for debugging or logging events)
-    public static final boolean IS_LOGGING_ACTIVE = true;
+    public static final boolean IS_LOGGING_ACTIVE = false;
 }

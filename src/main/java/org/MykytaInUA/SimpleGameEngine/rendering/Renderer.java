@@ -9,6 +9,8 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import java.util.ArrayList;
+
+import org.mykytainua.simplegameengine.objects.Cube;
 import org.mykytainua.simplegameengine.objects.Object3D;
 import org.mykytainua.simplegameengine.objects.Pyramid;
 import org.mykytainua.simplegameengine.objects.RandomObjectGenerator;
@@ -16,6 +18,7 @@ import org.mykytainua.simplegameengine.objects.components.Component;
 import org.mykytainua.simplegameengine.objects.components.texture.SolidColorComponent;
 import org.mykytainua.simplegameengine.objects.components.transform.PositionComponent;
 import org.mykytainua.simplegameengine.objects.components.transform.RotationComponent;
+import org.mykytainua.simplegameengine.objects.components.transform.SizeComponent;
 import org.mykytainua.simplegameengine.rendering.shaders.ShaderProgram;
 import org.mykytainua.simplegameengine.utilities.Utils;
 import org.mykytainua.simplegameengine.window.GameEngineWindow;
@@ -71,19 +74,24 @@ public class Renderer implements GLEventListener {
         generator = new RandomObjectGenerator(componentByReference);
 
         // Create and initialize objects with random data.
-        Object3D[] objects = new Object3D[1000];
+        Object3D[] objects = new Object3D[100000];
         for (int i = 0; i < objects.length; i++) {
             objects[i] = generator.getRandomObject(Pyramid.class, componentByCopy);
         }
 
         // Initialize shader program with shaders and objects.
-        this.shaderProgram = new ShaderProgram(".\\src\\main\\java\\shaders\\vertexShader.glsl",
-                                               ".\\src\\main\\java\\shaders\\fragmentShader.glsl", 
-                                               objects[0].getComponentClasses());
+        this.shaderProgram = new ShaderProgram(window.getCamera());
 
-        // Add camera to the shader program.
-        this.shaderProgram.addCamera(window.getCamera());
-
+        // Add objects to the shader program for rendering.
+        shaderProgram.addObjects(objects);
+        
+        componentByCopy.add(SizeComponent.class);
+        
+        objects = new Object3D[100000];
+        for (int j = 0; j < objects.length; j++) {
+            objects[j] = generator.getRandomObject(Cube.class, componentByCopy);
+        }
+        
         // Add objects to the shader program for rendering.
         shaderProgram.addObjects(objects);
 
@@ -92,6 +100,7 @@ public class Renderer implements GLEventListener {
 
         // Resize the window to match the OpenGL context.
         this.window.resizeWindow();
+        
     }
 
     /**

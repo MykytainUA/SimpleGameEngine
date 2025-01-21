@@ -25,7 +25,7 @@ public class RandomObjectGenerator {
     private static final Random RANDOMIZER = new Random();
     private static final Primitive3dObjectBuilder OBJECT_BUILDER = new Primitive3dObjectBuilder();
 
-    private static final float MAX_DISTANCE = 50;
+    private static final float MAX_DISTANCE = 5000;
     private static final float MAX_ANGLE_ROTATION = 360;
 
     /**
@@ -93,7 +93,9 @@ public class RandomObjectGenerator {
                                                       RANDOMIZER.nextFloat(MAX_ANGLE_ROTATION)));
 
         } else if (componentType == SizeComponent.class) {
-            return new SizeComponent(new Vector3f(1, 1, 1));
+            return new SizeComponent(new Vector3f(RANDOMIZER.nextFloat(),
+                                                  RANDOMIZER.nextFloat(), 
+                                                  RANDOMIZER.nextFloat()));
 
         } else if (componentType == SolidColorComponent.class) {
             return new SolidColorComponent(

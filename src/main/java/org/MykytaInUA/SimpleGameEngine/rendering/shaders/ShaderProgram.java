@@ -10,6 +10,7 @@ import static com.jogamp.opengl.GL4.GL_DEPTH_TEST;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,30 +19,12 @@ import org.mykytainua.simplegameengine.objects.Camera;
 import org.mykytainua.simplegameengine.objects.Object3D;
 import org.mykytainua.simplegameengine.objects.components.Component;
 
-/**
- * The ShaderProgram class represents a staticShader program that can be used to
- * render 3D objects. It manages the staticShader, stores uniforms, and handles the
- * rendering process. This class encapsulates all the components required to
- * render objects with a specific staticShader program, such as uniform variables,
- * camera settings, and render units.
- * 
- * <p>The class also allows adding objects (3D models) to be rendered with the
- * program, associating them with the appropriate render unit. Render units
- * group objects with similar properties for more efficient rendering.</p>
- */
 public class ShaderProgram {
 
     // The staticShader associated with this program
-    private final StaticShader staticShader;
-
-    // List of render units, each containing objects that share the same staticShader
-    private ArrayList<RenderUnit> renderUnits;
-
-    // The camera used to render the scene (provides view and projection matrices)
+    private final ArrayList<Shader> shaders = new ArrayList<Shader>();
+    
     private Camera camera;
-
-    // A storage for staticShader uniforms that need to be updated for each draw call
-    private final UniformsStorage uniformsStorage;
 
     /**
      * Constructor to initialize the ShaderProgram with the given vertex and
@@ -50,11 +33,9 @@ public class ShaderProgram {
      *
      * @param vertexShaderPath    the path to the vertex staticShader source file
      * @param fragmentShaderPath  the path to the fragment staticShader source file
-     * @param componentsForShader the list of components that the staticShader will use
+     * @param componentsForShader the list of components classes that the staticShader will use
      */
-    public ShaderProgram(String vertexShaderPath, 
-                         String fragmentShaderPath, 
-                         List<Component> componentsForShader) {
+    public ShaderProgram(Camera camera) {
         
         OpenGLSettings.setFaceCulling(true, true, GL_BACK);
         OpenGLSettings.setBlending(false);
@@ -64,112 +45,45 @@ public class ShaderProgram {
         Vector4f backgroundColor = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
         OpenGLSettings.setClearColor(backgroundColor);
         
-        // Assemble the staticShader using the provided paths and components
-        this.staticShader = ShaderAssembler.getShaderByPath(vertexShaderPath, 
-                                                      fragmentShaderPath, 
-                                                      componentsForShader);
-
-        // Initialize uniforms storage to manage uniform variables for the staticShader
-        this.uniformsStorage = new UniformsStorage(this.staticShader.getShaderID());
-
-        // Initialize an empty list of render units
-        this.renderUnits = new ArrayList<RenderUnit>();
+        this.camera = camera;
+    }
+    
+    public Camera getCamera() {
+        return camera;
     }
 
-    /**
-     * Adds a set of 3D objects to be rendered with the staticShader. If the objects share
-     * common characteristics, they are grouped into an existing render unit.
-     * Otherwise, a new render unit is created for the objects.
-     *
-     * @param objects the array of Object3D to be added to the staticShader program
-     */
-    public void addObjects(Object3D[] objects) {
-
-        // Find an existing render unit that can handle these objects
-        RenderUnit renderUnit = this.getRenderUnitFor3DObjects(objects);
-
-        if (renderUnit != null) {
-            // Add objects to the found render unit
-            renderUnit.addObjects(objects);
-        } else {
-            // Create a new render unit for these objects and add it to the render units
-            // list
-            RenderUnit newRenderUnit = new RenderUnit(this.staticShader.getShaderID(), objects);
-            this.renderUnits.add(newRenderUnit);
-        }
-    }
-
-    /**
-     * Sets the camera to be used by the staticShader program for rendering. The camera is
-     * responsible for providing the view and projection matrices.
-     *
-     * @param camera the camera to be used for rendering
-     */
-    public void addCamera(Camera camera) {
+    public void setCamera(Camera camera) {
         this.camera = camera;
     }
 
-    /**
-     * Returns the OpenGL staticShader program ID associated with this ShaderProgram.
-     *
-     * @return the staticShader program ID
-     */
-    public int getProgramID() {
-        return this.staticShader.getShaderID();
+    public void addObjects(Object3D[] objects) {    
+        Shader shader = this.getAppropriateShader(objects[0].getComponentsClasses());
+                
+        shader.addObjects(objects);
     }
 
-    /**
-     * Returns the location of a uniform variable within the staticShader program.
-     *
-     * @param name the name of the uniform variable
-     * @return the location of the uniform variable
-     */
-    public int getUniformLocation(String name) {
-
-        GL4 gl = (GL4) GLContext.getCurrentGL();
-
-        // Retrieve the uniform location from the staticShader program
-        return gl.glGetUniformLocation(staticShader.getShaderID(), name);
+    public void render() {
+        for (Shader shader : shaders) {
+            shader.render();
+        }
     }
-
-    /**
-     * Finds the render unit that can handle the provided set of 3D objects based on
-     * the components of the objects. If no such render unit exists, null is
-     * returned.
-     *
-     * @param objects the array of Object3D whose render unit is being searched for
-     * @return the render unit containing compatible objects, or null if no such
-     *         unit exists
-     */
-    private RenderUnit getRenderUnitFor3DObjects(Object3D[] objects) {
-        for (RenderUnit renderUnit : renderUnits) {
-            // Check if the render unit can handle all the components of the given objects
-            if (renderUnit.getComponents().containsAll(objects[0].getComponentClasses())) {
-                return renderUnit;
+    
+    private Shader getAppropriateShader(List<Class<? extends Component>> componentsForShader) {
+        
+        for(Shader shader : shaders) {
+            if(shader.getComponents().containsAll(componentsForShader)) {
+                return shader;
             }
         }
-        return null;
-    }
-
-    /**
-     * This method renders all the render units by setting the staticShader program and
-     * updating the uniform matrices (view and projection matrices). It then calls
-     * the render method for each render unit to draw the associated objects.
-     */
-    public void render() {
-        GL4 gl = (GL4) GLContext.getCurrentGL();
-
-        // Use the staticShader program for rendering
-        gl.glUseProgram(this.getProgramID());
-
-        // Update the view and projection matrices for the staticShader
-        this.uniformsStorage.updateUniformMatrix4f("v_matrix", camera.getLookAtMatrix());
-        this.uniformsStorage.updateUniformMatrix4f("p_matrix", camera.getPerspectiveMatrix());
-
-        // Render each render unit
-        for (RenderUnit renderUnit : renderUnits) {
-            renderUnit.render();
-        }
+        
+        Shader shader = ShaderAssembler.getShaderByPath(".\\src\\main\\java\\shaders\\vertexShader.glsl", 
+                                                        ".\\src\\main\\java\\shaders\\fragmentShader.glsl", 
+                                                         componentsForShader);
+        
+        shader.setCamera(camera);
+        shaders.add(shader);
+        
+        return shader;
     }
     
     private static class OpenGLSettings {

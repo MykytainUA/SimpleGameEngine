@@ -45,8 +45,8 @@ public class ShaderAssembler {
     private static String[] vertexShaderSource;
     private static String[] fragmentShaderSource;
 
-    // List of components to be used in the shader
-    private static List<Component> componentsForShader = new ArrayList<Component>();
+    // List of components classes those are used in the shader
+    private static List<Class<? extends Component>> componentsForShader = new ArrayList<Class<? extends Component>>();
 
     // Mapping of component types to their corresponding preprocessor defines
     private static Map<Class<? extends Component>, String> definesMap = 
@@ -68,11 +68,12 @@ public class ShaderAssembler {
      *
      * @param vertexShaderPath   the path to the vertex shader source file
      * @param fragmentShaderPath the path to the fragment shader source file
-     * @param components         the list of components associated with the object
+     * @param components         the list of components classes associated with the object
      * @return the generated StaticShader object with the appropriate defines
      */
-    public static StaticShader getShaderByPath(String vertexShaderPath, String fragmentShaderPath,
-            List<Component> components) {
+    public static StaticShader getShaderByPath(String vertexShaderPath, 
+                                               String fragmentShaderPath,
+                                               List<Class<? extends Component>> components) {
 
         // Assign the components for the shader
         componentsForShader = components;
@@ -113,16 +114,15 @@ public class ShaderAssembler {
                 macroPlaceholderIndex = sourceCodeAsList.indexOf(lineOfCode);
             }
         }
-
-        // Add the appropriate defines for the components
-        for (Component component : componentsForShader) {
-            if (definesMap.containsKey(component.getClass())) {
+        
+        for (Class<? extends Component> componentClass : componentsForShader) {
+            if (definesMap.containsKey(componentClass)) {
                 sourceCodeAsList.add(macroPlaceholderIndex + 1, 
-                                     definesMap.get(component.getClass()));
+                                     definesMap.get(componentClass));
             } else {
                 // If the component is a Mesh, ignore it as it doesn't require a define
-                if (!Mesh.class.isAssignableFrom(component.getClass())) {
-                    System.out.println("Unknown component:" + component);
+                if (!Mesh.class.isAssignableFrom(componentClass)) {
+                    System.out.println("Unknown component:" + componentClass);
                 }
             }
         }

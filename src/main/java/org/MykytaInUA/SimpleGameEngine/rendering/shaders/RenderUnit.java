@@ -36,13 +36,13 @@ public class RenderUnit {
         // Initialize GPU data accessor
         this.dataSender = new GPUDataAccessor(
             this.vao,
-            objects[0].getComponentClasses().size() + 1,
+            objects[0].getComponents().size() + 1,
             boundShaderID,
             objects
         );
 
         // Store object components
-        HashSet<Component> objectComponents = new HashSet<>(objects[0].getComponentClasses());
+        HashSet<Component> objectComponents = new HashSet<>(objects[0].getComponents());
         this.components = Collections.unmodifiableSet(objectComponents);
         this.objectsCount = objects.length;
     }
@@ -74,7 +74,7 @@ public class RenderUnit {
      *                                  {@code RenderUnit}.
      */
     public void addObjects(Object3D[] objects) {
-        if (!this.components.containsAll(objects[0].getComponentClasses())) {
+        if (!this.components.containsAll(objects[0].getComponents())) {
             throw new IllegalArgumentException(
                 "Objects' components do not match this RenderUnit's components. "
                 + "No objects were added."

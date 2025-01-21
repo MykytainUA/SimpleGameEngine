@@ -101,9 +101,22 @@ public abstract class Object3D {
         components.add(component);
     }
 
-    public List<Component> getComponentClasses() {
+    public List<Component> getComponents() {
         return new ArrayList<Component>(components);
     }
+    
+    public List<Class<? extends Component>> getComponentsClasses() {
+        List <Class<? extends Component>> classes = new ArrayList<Class<? extends Component>>(0);
+        
+        classes.add(Mesh.class);
+        
+        for (Component component : components) {
+            classes.add(component.getClass());
+        }
+        
+        return classes;
+    }
+
 
     public Mesh getMesh() {
         return this.mesh;
