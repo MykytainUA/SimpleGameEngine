@@ -25,7 +25,7 @@ public class RandomObjectGenerator {
     private static final Random RANDOMIZER = new Random();
     private static final Primitive3dObjectBuilder OBJECT_BUILDER = new Primitive3dObjectBuilder();
 
-    private static final float MAX_DISTANCE = 5000;
+    private static final float MAX_DISTANCE = 1000;
     private static final float MAX_ANGLE_ROTATION = 360;
 
     /**

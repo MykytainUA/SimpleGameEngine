@@ -7,25 +7,18 @@ package org.mykytainua.simplegameengine.objects.components;
  * deep copying, data management, and attribute handling.
  */
 public interface Component {
-
+    
     /**
      * Creates a deep copy of the component.
      *
      * @return a new instance of the component with identical data.
      */
     public Component deepCopy();
-
-//    /**
-//     * Retrieves the size of the data associated with this component per vertex.
-//     *
-//     * @return the number of bytes of data per vertex.
-//     */
-//    public int getDataPerVertexSize();
-
+    
     /**
-     * Retrieves the name of the attribute pointer associated with this component.
-     *
-     * @return a string representing the attribute pointer name.
+     *  Returns metadata for a component {@link ComponentMetadata}
+     *  
+     * @return implemented by creator of a component metadata
      */
-    public String getAttrubutePointerName();
+    public ComponentMetadata getComponentMetadata();  
 }

@@ -1,7 +1,6 @@
 package org.mykytainua.simplegameengine.rendering.buffers;
 
 import static com.jogamp.opengl.GL.GL_ARRAY_BUFFER;
-import static com.jogamp.opengl.GL.GL_FLOAT;
 import static com.jogamp.opengl.GL.GL_STATIC_DRAW;
 
 import com.jogamp.opengl.GL4;
@@ -9,7 +8,8 @@ import com.jogamp.opengl.GLContext;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import org.mykytainua.simplegameengine.utilities.Logger;
+
+import org.mykytainua.simplegameengine.global.DataType;
 import org.mykytainua.simplegameengine.utilities.Utils;
 
 /**
@@ -59,10 +59,10 @@ public class VBOWrapper {
      * @param bufferToSend the buffer containing the data to send
      * @param usage the usage pattern of the data store (e.g., GL_STATIC_DRAW)
      */
-    public void bufferFloatData(FloatBuffer bufferToSend, int usage) {
+    public void bufferData(ByteBuffer bufferToSend, int usage) {
         GL4 gl = (GL4) GLContext.getCurrentGL();
 
-        this.dataSize = bufferToSend.limit() * Float.BYTES;
+        this.dataSize = bufferToSend.limit();
 
         gl.glBufferData(GL_ARRAY_BUFFER, dataSize, bufferToSend, usage);
 
@@ -165,7 +165,7 @@ public class VBOWrapper {
      *
      * @return a ByteBuffer containing the VBO data
      */
-    public ByteBuffer getVBODataFromGPU() {
+    public ByteBuffer getDataFromGPU() {
 
         GL4 gl = (GL4) GLContext.getCurrentGL();
 
@@ -181,59 +181,36 @@ public class VBOWrapper {
 
         return bufferData;
     }
-
+    
     /**
-     * Sends float vector data for instanced rendering to the GPU and configures 
-     * the attribute pointer and divisor.
-     *
-     * @param program the OpenGL shader program
-     * @param attribPointerName the name of the attribute in the shader
-     * @param size the number of components per vertex attribute
-     * @param dataBuffer the buffer containing the data to send
+     * !!!!!!!!!!No comments!!!!!!!!!!!
      */
-    public void sendVBOFloatVectorInstancedData(int program, 
-                                                String attribPointerName, 
-                                                int size,
-                                                FloatBuffer dataBuffer) {
+    public void sendVBOData(int program, 
+                            String attribPointerName, 
+                            int size, 
+                            ByteBuffer dataBuffer, 
+                            DataType dataType,
+                            boolean isInstanced) {
+        int openGLType = dataType.getOpenGLType();
         this.bindBuffer();
 
-        Logger.printBufferData("Instanced \"" 
-                               + attribPointerName 
-                               + "\" param send to GPU:" 
-                               + "\nData:", dataBuffer);
-
-        bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-        vertexAttribPointer(program, attribPointerName, size, GL_FLOAT, false, 0, 0);
-
-        vertexAttribDivisor(program, attribPointerName, 1);
-        enableVertexAttribArray(program, attribPointerName);
-    }
-
-    /**
-     * Sends float vector data to the GPU and configures the attribute pointer.
-     *
-     * @param program the OpenGL shader program
-     * @param attribPointerName the name of the attribute in the shader
-     * @param size the number of components per vertex attribute
-     * @param dataBuffer the buffer containing the data to send
-     */
-    public void sendVBOFloatVectorData(int program, 
-                                       String attribPointerName, 
-                                       int size, 
-                                       FloatBuffer dataBuffer) {
-        this.bindBuffer();
-
-        Logger.printBufferData("Param \"" 
-                               + attribPointerName 
-                               + "\" send to GPU:" 
-                               + "\nData:", 
-                               dataBuffer);
-
-        bufferFloatData(dataBuffer, GL_STATIC_DRAW);
-        vertexAttribPointer(program, attribPointerName, size, GL_FLOAT, false, 0, 0);
+        bufferData(dataBuffer, GL_STATIC_DRAW);
+        vertexAttribPointer(program, 
+                            attribPointerName, 
+                            size, 
+                            openGLType, 
+                            false, 
+                            0, 
+                            0);
+        
+        if(isInstanced) {
+            vertexAttribDivisor(program, attribPointerName, 1);
+        }
 
         enableVertexAttribArray(program, attribPointerName);
     }
+    
+    
 
     public int getDataSize() {
         return this.dataSize;

@@ -1,9 +1,18 @@
 package org.mykytainua.simplegameengine.objects.components.transform;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import org.joml.Vector3f;
-import org.mykytainua.simplegameengine.objects.components.Bufferable;
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
+import org.mykytainua.simplegameengine.objects.DataProvider;
+import org.mykytainua.simplegameengine.objects.LocalDataProvider;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentLayout;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
+import org.mykytainua.simplegameengine.rendering.OpenGLBufferType;
 
 /**
  * The {@code SizeComponent} class represents the size of a 3D object in terms
@@ -15,15 +24,22 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * transformation-related operations within the game engine.</p>
  * 
  */
-public class SizeComponent implements Transform, 
-                                      Bufferable {
-
-    private Vector3f size;
-
-    private static final int DATA_PER_VERTEX_SIZE = 3;
-    private static final int TOTAL_DATA_SIZE = 12;
+public class SizeComponent implements Transform,
+                                      ShaderComponent{
+    
+    private static final ComponentMetadata METADATA;
+    private final DataProvider rawData;
+    
+    static {
+        METADATA = new ComponentMetadata(new ComponentLayout(
+                new AttributeDefinition(DataType.FLOAT_VEC3, 
+                                        "instanceSize",
+                                        OpenGLBufferType.VBO,
+                                        true)));
+    }
 
     public static final String ATTRIBUTE_POINTER_NAME = "instanceSize";
+    public static final String PREPROCESSOR_DEFINE = "SIZE_COMPONENT";
 
     /**
      * Constructs a {@code SizeComponent} with the specified size vector.
@@ -32,7 +48,8 @@ public class SizeComponent implements Transform,
      *             the object.
      */
     public SizeComponent(Vector3f size) {
-        this.size = size;
+        this.rawData = new LocalDataProvider(METADATA);
+        this.setSize(size);
     }
 
     /**
@@ -42,6 +59,14 @@ public class SizeComponent implements Transform,
      *         object.
      */
     public Vector3f getSize() {
+        ByteBuffer sizeData = this.getComponentData("instanceSize");
+        
+        Vector3f size = new Vector3f();
+        
+        for(int i = 0; i < 3; i++) {
+            size.setComponent(i, sizeData.getFloat());
+        }
+        
         return size;
     }
 
@@ -52,7 +77,13 @@ public class SizeComponent implements Transform,
      *             of the object.
      */
     public void setSize(Vector3f size) {
-        this.size = size;
+        ByteBuffer buff = ByteBuffer.allocate(DataType.FLOAT_VEC3.getByteSize()).order(ByteOrder.nativeOrder());
+        for(int i = 0; i < 3; i++) {
+            buff.putFloat(size.get(i));
+        }
+        
+        buff.flip();
+        this.rawData.setRawData(buff, "instanceSize");
     }
 
     /**
@@ -63,50 +94,21 @@ public class SizeComponent implements Transform,
      */
     @Override
     public Component deepCopy() {
-        return new SizeComponent(new Vector3f(this.size));
+        return new SizeComponent(new Vector3f(this.getSize()));
     }
 
-    /**
-     * Retrieves the size of the data per vertex in this component.
-     *
-     * @return the size of the data per vertex, in bytes.
-     */
     @Override
-    public int getDataPerVertexSize() {
-        return DATA_PER_VERTEX_SIZE;
+    public String getPreprocessorDefine() {
+        return PREPROCESSOR_DEFINE;
     }
 
-    /**
-     * Retrieves the total size of the data in this component.
-     *
-     * @return the total data size, in bytes.
-     */
     @Override
-    public int getTotalDataSize() {
-        return TOTAL_DATA_SIZE;
+    public ComponentMetadata getComponentMetadata() {
+        return METADATA;
     }
-
-    /**
-     * Writes the size data to the specified {@link ByteBuffer}.
-     *
-     * @param destinationBuffer the {@link ByteBuffer} where the size data will be
-     *                          written.
-     */
+    
     @Override
-    public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
-        destinationBuffer.putFloat(this.getSize().x);
-        destinationBuffer.putFloat(this.getSize().y);
-        destinationBuffer.putFloat(this.getSize().z);
-    }
-
-    /**
-     * Retrieves the name of the attribute pointer used in shaders for this
-     * component.
-     *
-     * @return a {@link String} representing the attribute pointer name.
-     */
-    @Override
-    public String getAttrubutePointerName() {
-        return ATTRIBUTE_POINTER_NAME;
+    public ByteBuffer getComponentData(String name) {       
+        return this.rawData.getRawData(name).order(ByteOrder.nativeOrder());
     }
 }

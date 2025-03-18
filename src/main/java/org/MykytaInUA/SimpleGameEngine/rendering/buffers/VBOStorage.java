@@ -1,5 +1,6 @@
 package org.mykytainua.simplegameengine.rendering.buffers;
 
+import org.mykytainua.simplegameengine.global.DataType;
 import org.mykytainua.simplegameengine.utilities.Utils;
 
 /**

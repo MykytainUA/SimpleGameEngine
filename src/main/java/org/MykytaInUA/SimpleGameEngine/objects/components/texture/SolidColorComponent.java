@@ -1,9 +1,19 @@
 package org.mykytainua.simplegameengine.objects.components.texture;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import org.joml.Vector3f;
 import org.joml.Vector4f;
-import org.mykytainua.simplegameengine.objects.components.Bufferable;
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
+import org.mykytainua.simplegameengine.objects.DataProvider;
+import org.mykytainua.simplegameengine.objects.LocalDataProvider;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentLayout;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
+import org.mykytainua.simplegameengine.rendering.OpenGLBufferType;
 
 /**
  * The {@code SolidColorComponent} class represents a material component that
@@ -17,12 +27,18 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * functionality for rendering materials in the context of a 3D engine.</p>
  */
 public class SolidColorComponent implements RenderMaterialComponent, 
-                                            Bufferable {
+                                            ShaderComponent {
 
-    /**
-     * The color represented as a {@link Vector4f} with RGBA channels.
-     */
-    private Vector4f color;
+    private static final ComponentMetadata METADATA;
+    private final DataProvider rawData;
+    
+    static {
+        METADATA = new ComponentMetadata(new ComponentLayout(
+                new AttributeDefinition(DataType.FLOAT_VEC4, 
+                                        "instanceColor",
+                                        OpenGLBufferType.VBO,
+                                        true)));
+    }
 
     /**
      * The size of data per vertex, in number of floats (4 floats for RGBA).
@@ -30,15 +46,12 @@ public class SolidColorComponent implements RenderMaterialComponent,
     public static final int DATA_PER_VERTEX_SIZE = 4;
 
     /**
-     * The total size of the color data, in bytes (4 floats, each 4 bytes).
-     */
-    private static final int TOTAL_DATA_SIZE = 16;
-
-    /**
      * The name of the attribute pointer associated with the color data in the
      * shader program.
      */
     public static final String ATTRIBUTE_POINTER_NAME = "instanceColor";
+    
+    public static final String PREPROCESSOR_DEFINE = "SOLID_COLOR_COMPONENT";
 
     /**
      * Constructs a {@code SolidColorComponent} with the specified color.
@@ -46,7 +59,8 @@ public class SolidColorComponent implements RenderMaterialComponent,
      * @param color the RGBA color as a {@link Vector4f}
      */
     public SolidColorComponent(Vector4f color) {
-        this.color = color;
+        this.rawData = new LocalDataProvider(METADATA);
+        this.setColor(color);
     }
 
     /**
@@ -54,8 +68,16 @@ public class SolidColorComponent implements RenderMaterialComponent,
      *
      * @return the color as a {@link Vector4f}
      */
-    public Vector4f getColor() {
-        return color;
+    public Vector4f getColor() { 
+        ByteBuffer colorData = this.getComponentData("instanceColor");
+        
+        Vector4f col = new Vector4f();
+
+        for(int i = 0; i < 4; i++) {
+            col.setComponent(i, colorData.getFloat());
+        }
+        
+        return col;
     }
 
     /**
@@ -63,8 +85,16 @@ public class SolidColorComponent implements RenderMaterialComponent,
      *
      * @param color the new color as a {@link Vector4f}
      */
-    public void setColor(Vector4f color) {
-        this.color = color;
+    public void setColor(Vector4f color) { 
+        ByteBuffer buff = ByteBuffer.allocate(DataType.FLOAT_VEC4.getByteSize()).order(ByteOrder.nativeOrder());
+        
+        for(int i = 0; i < 4; i++) {
+            buff.putFloat(color.get(i));
+        }
+        
+        buff.flip();
+        
+        this.rawData.setRawData(buff, "instanceColor");
     }
 
     /**
@@ -74,50 +104,23 @@ public class SolidColorComponent implements RenderMaterialComponent,
      */
     @Override
     public Component deepCopy() {
-        return new SolidColorComponent(new Vector4f(this.color));
+        return new SolidColorComponent(new Vector4f(this.getColor()));
     }
 
-    /**
-     * Returns the size of the data per vertex in terms of floats (4 floats for
-     * RGBA).
-     *
-     * @return the number of floats per vertex
-     */
+
     @Override
-    public int getDataPerVertexSize() {
-        return DATA_PER_VERTEX_SIZE;
+    public String getPreprocessorDefine() {
+        return PREPROCESSOR_DEFINE;
     }
 
-    /**
-     * Returns the total size of the color data in bytes.
-     *
-     * @return the size of the data in bytes
-     */
     @Override
-    public int getTotalDataSize() {
-        return TOTAL_DATA_SIZE;
+    public ComponentMetadata getComponentMetadata() {
+        // TODO Auto-generated method stub
+        return METADATA;
     }
-
-    /**
-     * Writes the RGBA color data to the provided {@link ByteBuffer}.
-     *
-     * @param destinationBuffer the {@link ByteBuffer} to write data to
-     */
+    
     @Override
-    public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
-        destinationBuffer.putFloat(this.getColor().x);
-        destinationBuffer.putFloat(this.getColor().y);
-        destinationBuffer.putFloat(this.getColor().z);
-        destinationBuffer.putFloat(this.getColor().w);
-    }
-
-    /**
-     * Returns the name of the attribute pointer associated with the color data.
-     *
-     * @return the attribute pointer name
-     */
-    @Override
-    public String getAttrubutePointerName() {
-        return ATTRIBUTE_POINTER_NAME;
+    public ByteBuffer getComponentData(String name) {       
+        return this.rawData.getRawData(name).order(ByteOrder.nativeOrder());
     }
 }

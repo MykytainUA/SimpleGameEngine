@@ -1,22 +1,49 @@
 package org.mykytainua.simplegameengine.objects.components.mesh;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 
-import org.mykytainua.simplegameengine.objects.components.Bufferable;
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
+import org.mykytainua.simplegameengine.objects.DataProvider;
+import org.mykytainua.simplegameengine.objects.LocalDataProvider;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentLayout;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.rendering.OpenGLBufferType;
 
 /**
  * {@code IndexedVertexMesh} represents a 3D mesh that uses indexed vertices. It
  * stores vertices and indices to define a shape and provides methods for
  * handling and copying the mesh data.
  */
-public class IndexedVertexMesh implements Mesh, 
-                                          Bufferable {
+public class IndexedVertexMesh implements Mesh {
+    
+    private static final ComponentMetadata METADATA;
+    private final DataProvider data;
+    
+    static {
+        METADATA = new ComponentMetadata(new ComponentLayout(
+                new AttributeDefinition(DataType.FLOAT_VEC3_BUFFER, 
+                                        "vertices",  
+                                        OpenGLBufferType.VBO, 
+                                        false),
+                new AttributeDefinition(DataType.INT_BUFFER, 
+                                        "indices",  
+                                        OpenGLBufferType.EBO,
+                                        false),
+                new AttributeDefinition(DataType.FLOAT_BUFFER, 
+                                        "UVcoords", 
+                                        OpenGLBufferType.VBO,
+                                        false)));
+    }
 
+    protected final float[] vertices;
+    protected final float[] UV;
     private final int[] indices;
-    protected float[] vertices;
-
     public static final String ATTRIBUTE_POINTER_NAME = "vertices";
 
     /**
@@ -25,135 +52,102 @@ public class IndexedVertexMesh implements Mesh,
      * @param vertices the vertex data (position coordinates)
      * @param indices  the index data that defines the triangles
      */
-    public IndexedVertexMesh(float[] vertices, int[] indices) {
+    public IndexedVertexMesh(float[] vertices, int[] indices, float[] UV) {
+        this.data = new LocalDataProvider(METADATA);
+        
+        int vertexBufferSize = DataType.FLOAT_BUFFER.getBufferByteSize(vertices.length);
+        ByteBuffer vertexBuffer = ByteBuffer.allocate(vertexBufferSize).order(ByteOrder.nativeOrder());  
+        int indexBufferSize = DataType.INT_BUFFER.getBufferByteSize(indices.length);
+        ByteBuffer indexBuffer = ByteBuffer.allocate(indexBufferSize).order(ByteOrder.nativeOrder());  
+        int UVSize = DataType.FLOAT_BUFFER.getBufferByteSize(UV.length);
+        ByteBuffer UVBuffer = ByteBuffer.allocate(UVSize).order(ByteOrder.nativeOrder());  
+        
+        for (int i = 0; i < vertices.length; i++) {
+            vertexBuffer.putFloat(vertices[i]);
+        }
+        
+        for (int i = 0; i < indices.length; i++) {
+            indexBuffer.putInt(indices[i]);
+        }
+        
+        for (int i = 0; i < UV.length; i++) {
+            UVBuffer.putFloat(UV[i]);
+        }
+        
+        vertexBuffer.flip(); 
+        indexBuffer.flip();
+        UVBuffer.flip();
+        
+        this.data.setRawData(vertexBuffer, "vertices");
+        this.data.setRawData(indexBuffer, "indices");
+        this.data.setRawData(UVBuffer, "UVcoords");
+        
         this.vertices = vertices;
         this.indices = indices;
+        this.UV = UV;
     }
 
     @Override
     public float[] getVertices() {
-        return this.vertices;
+        ByteBuffer vertexBuffer = this.data.getRawData("vertices");
+        FloatBuffer vertexFloatBuffer = vertexBuffer.asFloatBuffer();
+        float[] vertexArray = new float[vertexFloatBuffer.limit()]; 
+        vertexFloatBuffer.get(vertexArray);
+        return vertexArray;
     }
 
     public int[] getIndices() {
-        return this.indices;
+        ByteBuffer indexBuffer = this.data.getRawData("indices");
+        IntBuffer indexIntBuffer = indexBuffer.asIntBuffer();
+        int[] indexArray = new int[indexIntBuffer.limit()]; 
+        indexIntBuffer.get(indexArray);
+        return indexArray;
+    }
+    
+    public void setVertices(float[] vertices) {
+        
     }
 
-    /**
-     * A predefined cube mesh with vertices and indices.
-     */
-    public static class CubeMesh {
-        private static final float[] VERTICES = new float[] {
-            // Cube vertices
-            1.0f, 1.0f, 1.0f, // Front top right
-            1.0f, -1.0f, 1.0f, // Front bottom right
-            -1.0f, 1.0f, 1.0f, // Front top left
-            -1.0f, -1.0f, 1.0f, // Front bottom left
-            1.0f, 1.0f, -1.0f, // Back top right
-            1.0f, -1.0f, -1.0f, // Back bottom right
-            -1.0f, 1.0f, -1.0f, // Back top left
-            -1.0f, -1.0f, -1.0f // Back bottom left
-        };
-
-        private static final int[] INDICES = new int[] {
-            // Cube indices (defining the triangles)
-            2, 3, 1, 2, 1, 0, // Front
-            4, 5, 7, 4, 7, 6, // Back
-            0, 1, 5, 0, 5, 4, // Right
-            6, 7, 3, 6, 3, 2, // Left
-            2, 0, 4, 2, 4, 6, // Top
-            7, 5, 1, 7, 1, 3 // Bottom
-        };
-
-        private static final float[] TEXTURECOORDINATES = {
-            // Texture coordinates for cube faces
-            1.0f, 1.0f, // Front top right
-            1.0f, 0.0f, // Front bottom right
-            0.0f, 1.0f, // Front top left
-            0.0f, 0.0f, // Front bottom left
-            0.0f, 1.0f, // Back top right
-            0.0f, 0.0f, // Back bottom right
-            1.0f, 0.0f, // Back top left
-            1.0f, 1.0f // Back bottom left
-        };
-
-        public static IndexedVertexMesh getMesh() {
-            return new IndexedVertexMesh(VERTICES, INDICES);
-        }
-
-        public static float[] getVertices() {
-            return VERTICES;
-        }
-
-        public static int[] getIndices() {
-            return INDICES;
-        }
-
-        public static float[] getTextureCoordinates() {
-            return TEXTURECOORDINATES;
-        }
-    }
-
-    /**
-     * A predefined pyramid mesh with vertices and indices.
-     */
-    public static class PyramidMesh {
-        private static float[] vertices = new float[] { 1.0f, -1.0f, 1.0f, // Front right
-            -1.0f, -1.0f, 1.0f, // Front left
-            1.0f, -1.0f, -1.0f, // Back right
-            -1.0f, -1.0f, -1.0f, // Back left
-            0.0f, 1.0f, 0.0f // Top
-        };
-
-        private static int[] indices = new int[] {
-            // Pyramid indices (defining the faces)
-            2, 0, 1, 2, 1, 3, // Base
-            4, 1, 0, // Front side
-            4, 0, 2, // Right side
-            4, 3, 1, // Left side
-            4, 2, 3 // Back side
-        };
-
-        public static IndexedVertexMesh getMesh() {
-            return new IndexedVertexMesh(vertices, indices);
-        }
-
-        public static float[] getVertices() {
-            return vertices;
-        }
-
-        public static int[] getIndices() {
-            return indices;
-        }
+    public void getIndices(int[] indices) {
+        
     }
 
     @Override
     public Component deepCopy() {
-        float[] copiedVertices = Arrays.copyOf(vertices, vertices.length);
-        int[] copiedIndices = Arrays.copyOf(indices, indices.length);
-        return new IndexedVertexMesh(copiedVertices, copiedIndices);
+        float[] copiedVertices = Arrays.copyOf(this.vertices, this.vertices.length);
+        float[] copiedUVs = Arrays.copyOf(this.UV, this.UV.length);
+        int[] copiedIndices = Arrays.copyOf(this.indices, this.indices.length);
+        return new IndexedVertexMesh(copiedVertices, copiedIndices, copiedUVs);
+    }
+    
+    @Override
+    public ByteBuffer getComponentData(String name) {
+        return this.data.getRawData(name).order(ByteOrder.nativeOrder());
     }
 
     @Override
-    public int getDataPerVertexSize() {
-        return 0;
+    public ComponentMetadata getComponentMetadata() {
+        // TODO Auto-generated method stub
+        return METADATA;
     }
 
     @Override
-    public int getTotalDataSize() {
-        // Assuming each float is 4 bytes, and there are 3 values per vertex (x, y, z)
-        return this.getVertices().length * 4;
+    public String getPreprocessorDefine() {
+        // TODO Auto-generated method stub
+        return null;
     }
-
+    
     @Override
-    public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
-        for (int i = 0; i < this.getVertices().length; i++) {
-            destinationBuffer.putFloat(this.getVertices()[i]);
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        
+        IndexedVertexMesh mesh = (IndexedVertexMesh) obj;
+        
+        if(this.data.equals(mesh.data)) {
+            return true;
         }
-    }
-
-    @Override
-    public String getAttrubutePointerName() {
-        return ATTRIBUTE_POINTER_NAME;
+        
+        return false;
     }
 }

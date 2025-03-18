@@ -3,6 +3,7 @@ package org.mykytainua.simplegameengine.objects;
 import java.util.ArrayList;
 import java.util.List;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
 import org.mykytainua.simplegameengine.objects.components.mesh.Mesh;
 import org.mykytainua.simplegameengine.objects.components.texture.RenderMaterialComponent;
 import org.mykytainua.simplegameengine.objects.components.transform.Transform;
@@ -115,6 +116,34 @@ public abstract class Object3D {
         }
         
         return classes;
+    }
+    
+    public List<Class<? extends ShaderComponent>> getShaderComponentsClasses() {
+        List <Class<? extends ShaderComponent>> shaderClasses = new ArrayList<Class<? extends ShaderComponent>>(0);
+        
+        for (Component component : components) {
+            if (component instanceof ShaderComponent) {
+                // Safe unchecked cast
+                @SuppressWarnings("unchecked")
+                Class<? extends ShaderComponent> shaderClass = (Class<? extends ShaderComponent>) component.getClass();
+                shaderClasses.add(shaderClass);
+            }
+        }
+        
+        return shaderClasses;
+    }
+    
+    public List<ShaderComponent> getShaderComponents() {
+        List <ShaderComponent> shaderComponents = new ArrayList<ShaderComponent>(0);
+        
+        for (Component component : components) {
+            if (component instanceof ShaderComponent) {
+                ShaderComponent shaderComponent = (ShaderComponent) component;
+                shaderComponents.add(shaderComponent);
+            }
+        }
+        
+        return shaderComponents;
     }
 
 

@@ -1,9 +1,18 @@
 package org.mykytainua.simplegameengine.objects.components.transform;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import org.joml.Vector3f;
-import org.mykytainua.simplegameengine.objects.components.Bufferable;
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
+import org.mykytainua.simplegameengine.objects.DataProvider;
+import org.mykytainua.simplegameengine.objects.LocalDataProvider;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentLayout;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
+import org.mykytainua.simplegameengine.rendering.OpenGLBufferType;
 
 /**
  * The {@code RotationComponent} class represents the rotation of a 3D object in
@@ -18,14 +27,22 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * objects in a consistent and efficient manner.</p>
  */
 public class RotationComponent implements Transform,
-                                          Bufferable {
-
-    private Vector3f rotation;
-
-    private static final int DATA_PER_VERTEX_SIZE = 3;
-    private static final int TOTAL_DATA_SIZE = 12;
+                                          ShaderComponent{
+    
+    private static final ComponentMetadata METADATA;
+    private final DataProvider rawData;
+    
+    static {
+        METADATA = new ComponentMetadata(new ComponentLayout(
+                new AttributeDefinition(DataType.FLOAT_VEC3, 
+                                        "instanceRotation",
+                                        OpenGLBufferType.VBO,
+                                        true)));
+    }
 
     public static final String ATTRIBUTE_POINTER_NAME = "instanceRotation";
+    
+    public static final String PREPROCESSOR_DEFINE = "ROTATION_COMPONENT";
 
     /**
      * Constructs a {@code RotationComponent} with the specified rotation vector.
@@ -34,7 +51,8 @@ public class RotationComponent implements Transform,
      *                 angles of the object's rotation.
      */
     public RotationComponent(Vector3f rotation) {
-        this.rotation = rotation;
+        this.rawData = new LocalDataProvider(METADATA);
+        this.setRotation(rotation);
     }
 
     /**
@@ -44,7 +62,14 @@ public class RotationComponent implements Transform,
      *         the object's rotation.
      */
     public Vector3f getRotation() {
-        return rotation;
+        ByteBuffer rotationData = this.getComponentData("instanceRotation");
+        Vector3f rot = new Vector3f();
+        
+        for(int i = 0; i < 3; i++) {
+            rot.setComponent(i, rotationData.getFloat());
+        }
+        
+        return rot;
     }
 
     /**
@@ -54,7 +79,15 @@ public class RotationComponent implements Transform,
      *                 angles of the object's rotation.
      */
     public void setRotation(Vector3f rotation) {
-        this.rotation = rotation;
+        ByteBuffer buff = ByteBuffer.allocate(DataType.FLOAT_VEC3.getByteSize()).order(ByteOrder.nativeOrder());
+        for(int i = 0; i < 3; i++) {
+            buff.putFloat(rotation.get(i));
+        }
+        
+        buff.flip();
+        
+        
+        this.rawData.setRawData(buff, "instanceRotation");
     }
 
     /**
@@ -65,51 +98,22 @@ public class RotationComponent implements Transform,
      */
     @Override
     public Component deepCopy() {
-        return new RotationComponent(new Vector3f(this.rotation));
+        return new RotationComponent(new Vector3f(this.getRotation()));
     }
 
-    /**
-     * Retrieves the size of the data per vertex in this component.
-     *
-     * @return the size of the data per vertex, in bytes.
-     */
     @Override
-    public int getDataPerVertexSize() {
-        return DATA_PER_VERTEX_SIZE;
+    public String getPreprocessorDefine() {
+        return PREPROCESSOR_DEFINE;
     }
 
-    /**
-     * Retrieves the total size of the data in this component.
-     *
-     * @return the total data size, in bytes.
-     */
     @Override
-    public int getTotalDataSize() {
-        return TOTAL_DATA_SIZE;
+    public ComponentMetadata getComponentMetadata() {
+        return METADATA;
     }
-
-    /**
-     * Writes the rotation data to the specified {@link ByteBuffer}.
-     *
-     * @param destinationBuffer the {@link ByteBuffer} where the rotation data will
-     *                          be written.
-     */
+    
     @Override
-    public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
-        destinationBuffer.putFloat(this.getRotation().x);
-        destinationBuffer.putFloat(this.getRotation().y);
-        destinationBuffer.putFloat(this.getRotation().z);
-    }
-
-    /**
-     * Retrieves the name of the attribute pointer used in shaders for this
-     * component.
-     *
-     * @return a {@link String} representing the attribute pointer name.
-     */
-    @Override
-    public String getAttrubutePointerName() {
-        return ATTRIBUTE_POINTER_NAME;
+    public ByteBuffer getComponentData(String name) {
+        return this.rawData.getRawData(name).order(ByteOrder.nativeOrder());
     }
 }
 

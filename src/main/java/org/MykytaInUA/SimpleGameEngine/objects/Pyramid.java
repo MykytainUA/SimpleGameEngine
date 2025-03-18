@@ -16,6 +16,6 @@ public class Pyramid extends Object3D {
      * automatically set during the creation of the pyramid object.
      */
     public Pyramid() {
-        this.setMesh(IndexedVertexMesh.PyramidMesh.getMesh());
+        this.setMesh(IndexedVertexMesh.generator.getDefaultTiangleMesh());
     }
 }

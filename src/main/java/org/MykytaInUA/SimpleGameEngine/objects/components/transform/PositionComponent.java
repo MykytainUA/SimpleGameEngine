@@ -1,29 +1,43 @@
 package org.mykytainua.simplegameengine.objects.components.transform;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 import org.joml.Vector3f;
-import org.mykytainua.simplegameengine.objects.components.Bufferable;
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
+import org.mykytainua.simplegameengine.objects.DataProvider;
+import org.mykytainua.simplegameengine.objects.LocalDataProvider;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentLayout;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
+import org.mykytainua.simplegameengine.rendering.OpenGLBufferType;
 
 /**
  * Represents the position of a 3D object in the game engine. The position is
  * stored as a {@link Vector3f}, and this component provides methods for
  * managing and retrieving position-related data.
  */
-public class PositionComponent implements Transform,
-                                          Bufferable {
-
-    /** The position vector of the component. */
-    private Vector3f position;
-
-    /** The size of the data per vertex in this component, measured in floats. */
-    private static final int DATA_PER_VERTEX_SIZE = 3;
-
-    /** The total size of the component data, measured in bytes. */
-    private static final int TOTAL_DATA_SIZE = 12;
+public class PositionComponent implements Transform,                                      
+                                          ShaderComponent {
+    
+    private static final ComponentMetadata METADATA;
+    private final DataProvider rawData;
+    
+    static {
+        METADATA = new ComponentMetadata(new ComponentLayout(
+                new AttributeDefinition(DataType.FLOAT_VEC3, 
+                                        "instancePosition",  
+                                        OpenGLBufferType.VBO,
+                                        true)));
+    }
 
     /** The name of the attribute pointer for this component in the shader. */
     public static final String ATTRIBUTE_POINTER_NAME = "instancePosition";
+    
+    public static final String PREPROCESSOR_DEFINE = "POSITION_COMPONENT";
 
     /**
      * Constructs a {@code PositionComponent} with the given position.
@@ -31,7 +45,8 @@ public class PositionComponent implements Transform,
      * @param position the position vector to initialize this component with.
      */
     public PositionComponent(Vector3f position) {
-        this.position = position;
+        this.rawData = new LocalDataProvider(METADATA);
+        this.setPosition(position);
     }
 
     /**
@@ -40,7 +55,14 @@ public class PositionComponent implements Transform,
      * @return the current position vector.
      */
     public Vector3f getPosition() {
-        return position;
+        ByteBuffer positionData = this.getComponentData("instancePosition");
+        Vector3f pos = new Vector3f();
+        
+        for(int i = 0; i < 3; i++) {
+            pos.setComponent(i, positionData.getFloat());
+        }
+        
+        return pos;
     }
 
     /**
@@ -49,7 +71,15 @@ public class PositionComponent implements Transform,
      * @param position the new position vector.
      */
     public void setPosition(Vector3f position) {
-        this.position = position;
+        ByteBuffer buff = ByteBuffer.allocate(DataType.FLOAT_VEC3.getByteSize()).order(ByteOrder.nativeOrder());
+        
+        for(int i = 0; i < 3; i++) {
+            buff.putFloat(position.get(i));
+        }
+        
+        buff.flip();
+        
+        this.rawData.setRawData(buff, "instancePosition");
     }
 
     /**
@@ -60,49 +90,22 @@ public class PositionComponent implements Transform,
      */
     @Override
     public Component deepCopy() {
-        return new PositionComponent(new Vector3f(this.position));
+        return new PositionComponent(new Vector3f(this.getPosition()));
     }
 
-    /**
-     * Retrieves the size of the data per vertex for this component.
-     *
-     * @return the number of floats per vertex (3 for a {@code Vector3f}).
-     */
     @Override
-    public int getDataPerVertexSize() {
-        return DATA_PER_VERTEX_SIZE;
+    public String getPreprocessorDefine() {
+        return PREPROCESSOR_DEFINE;
     }
 
-    /**
-     * Retrieves the total size of the data for this component in bytes.
-     *
-     * @return the total number of bytes (12 bytes for a {@code Vector3f}).
-     */
     @Override
-    public int getTotalDataSize() {
-        return TOTAL_DATA_SIZE;
+    public ComponentMetadata getComponentMetadata() {
+        return METADATA;
     }
 
-    /**
-     * Writes the position data of this component into a byte buffer.
-     *
-     * @param destinationBuffer the buffer where the position data will be written.
-     */
     @Override
-    public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
-        destinationBuffer.putFloat(this.getPosition().x);
-        destinationBuffer.putFloat(this.getPosition().y);
-        destinationBuffer.putFloat(this.getPosition().z);
-    }
-
-    /**
-     * Retrieves the name of the attribute pointer for this component.
-     *
-     * @return the attribute pointer name ("instancePosition").
-     */
-    @Override
-    public String getAttrubutePointerName() {
-        return ATTRIBUTE_POINTER_NAME;
+    public ByteBuffer getComponentData(String name) {
+        return this.rawData.getRawData(name).order(ByteOrder.nativeOrder());
     }
 }
 

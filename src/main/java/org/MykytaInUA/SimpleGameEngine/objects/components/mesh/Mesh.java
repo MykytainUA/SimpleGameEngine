@@ -1,6 +1,7 @@
 package org.mykytainua.simplegameengine.objects.components.mesh;
 
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
 
 /**
  * The {@code Mesh} interface represents a component that provides the vertex
@@ -16,8 +17,11 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * can be used as a reusable and composable part of a 3D object within the
  * engine.</p>
  */
-public interface Mesh extends Component {
-
+public interface Mesh extends ShaderComponent {
+    public static final String VERTICES = "vertices"; 
+    public static final String INDICES = "indices"; 
+    public static final String UV = "UVcoords"; 
+    static MeshGenerator generator = new MeshGenerator();
     /**
      * Retrieves the array of vertices that make up this mesh.
      *

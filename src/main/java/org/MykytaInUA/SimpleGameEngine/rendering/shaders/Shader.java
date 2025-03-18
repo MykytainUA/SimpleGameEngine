@@ -4,11 +4,19 @@ import static com.jogamp.opengl.GL2ES2.GL_FRAGMENT_SHADER;
 import static com.jogamp.opengl.GL2ES2.GL_VERTEX_SHADER;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
 import org.mykytainua.simplegameengine.objects.Camera;
 import org.mykytainua.simplegameengine.objects.Object3D;
-import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
+import org.mykytainua.simplegameengine.objects.components.mesh.Mesh;
 import org.mykytainua.simplegameengine.utilities.Utils;
 
 import com.jogamp.opengl.GL4;
@@ -26,15 +34,32 @@ public abstract class Shader {
     protected ArrayList<RenderUnit> renderUnits;
     
     // List of components that are associated with this shader.
-    protected List<Class<? extends Component>> components;
+    protected List<Class<? extends ShaderComponent>> componentsClasses;
+    
+    protected final Map <String, AttributeDefinition> ATTRIBUTES;
     
     // The camera used to render the scene (provides view and projection matrices)
     protected Camera camera;
     
-    public Shader(List<Class<? extends Component>> components) {
+    public Shader(List<Class<? extends ShaderComponent>> componentsClasses, List<ShaderComponent> components) {
      // Initialize an empty list of render units
-        this.components = components;
-        this.renderUnits = new ArrayList<RenderUnit>();
+        this.componentsClasses = componentsClasses;
+   
+        this.ATTRIBUTES = new HashMap<String, AttributeDefinition>();
+        
+        for (ShaderComponent shaderComponent : components) {
+            ComponentMetadata metadata = shaderComponent.getComponentMetadata();
+            for(Entry<String, AttributeDefinition> entry : metadata.getParameters().entrySet()) {
+                if(!this.ATTRIBUTES.containsKey(entry.getKey())) {
+                    this.ATTRIBUTES.put(entry.getKey(), entry.getValue());
+                } else {
+                    throw new IllegalArgumentException("Trying to put dublicate attribute in shader attributes:" + entry.getKey());
+                }
+            }
+        }
+        
+        
+        this.renderUnits = new ArrayList<RenderUnit>(0);
     }
     
     /**
@@ -51,8 +76,8 @@ public abstract class Shader {
      *
      * @return The list of components associated with the shader.
      */
-    public List<Class<? extends Component>> getComponents() {
-        return this.components;
+    public List<Class<? extends ShaderComponent>> getComponentsClasses() {
+        return this.componentsClasses;
     }
     
     public Camera getCamera() {
@@ -88,10 +113,9 @@ public abstract class Shader {
      * @return the render unit containing compatible objects, or null if no such
      *         unit exists
      */
-    private RenderUnit getRenderUnitFor3DObjects(Object3D[] objects) {
-        for (RenderUnit renderUnit : renderUnits) {
-            // Check if the render unit can handle all the components of the given objects
-            if (renderUnit.getComponents().containsAll(objects[0].getComponents())) {
+    private RenderUnit findCompatibleRenderUnit(Mesh mesh) {
+        for(RenderUnit renderUnit : renderUnits) {
+            if(renderUnit.isCompatible(mesh)) {
                 return renderUnit;
             }
         }
@@ -105,18 +129,17 @@ public abstract class Shader {
      *
      * @param objects the array of Object3D to be added to the staticShader program
      */
-    public void addObjects(Object3D[] objects) {
-
+    public void addObject(Object3D object) {
         // Find an existing render unit that can handle these objects
-        RenderUnit renderUnit = this.getRenderUnitFor3DObjects(objects);
-
+        RenderUnit renderUnit = this.findCompatibleRenderUnit(object.getMesh());
+        
         if (renderUnit != null) {
             // Add objects to the found render unit
-            renderUnit.addObjects(objects);
+            renderUnit.addObject(object);
+            
         } else {
             // Create a new render unit for these objects and add it to the render units
-            // list
-            RenderUnit newRenderUnit = new RenderUnit(this.getShaderID(), objects);
+            RenderUnit newRenderUnit = new RenderUnit(this, object);
             this.renderUnits.add(newRenderUnit);
         }
     }
@@ -206,5 +229,26 @@ public abstract class Shader {
         gl.glDeleteShader(fragmentShader);
         
         return shaderID;
+    }
+    
+    public Map<String, AttributeDefinition> getSupportedAttributes() {
+        return Collections.unmodifiableMap(this.ATTRIBUTES);
+    }
+    
+    public boolean isComponentCompatible(List<Class<? extends ShaderComponent>> shaderComponentClasses) {
+        return this.getComponentsClasses().containsAll(shaderComponentClasses);
+    }
+    
+    public String toString() {
+        String ShaderRepresentation = "Shader " 
+                + Integer.toHexString(System.identityHashCode(this)) + ":" 
+                + "\nShader ID:" + this.shaderID
+                + "\nRender units count: " + this.renderUnits.size();
+        
+        for (RenderUnit renderUnit : renderUnits) {
+            ShaderRepresentation += renderUnits.toString();
+        }
+        
+        return ShaderRepresentation;
     }
 }

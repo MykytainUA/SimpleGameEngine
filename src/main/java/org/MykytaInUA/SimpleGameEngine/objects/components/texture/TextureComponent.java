@@ -3,8 +3,13 @@ package org.mykytainua.simplegameengine.objects.components.texture;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import org.mykytainua.simplegameengine.objects.components.Bufferable;
+import org.mykytainua.simplegameengine.global.DataType;
+import org.mykytainua.simplegameengine.global.AttributeDefinition;
 import org.mykytainua.simplegameengine.objects.components.Component;
+import org.mykytainua.simplegameengine.objects.components.ComponentLayout;
+import org.mykytainua.simplegameengine.objects.components.ComponentMetadata;
+import org.mykytainua.simplegameengine.objects.components.ShaderComponent;
+import org.mykytainua.simplegameengine.rendering.OpenGLBufferType;
 
 /**
  * The {@code TextureComponent} class represents a material component that
@@ -18,7 +23,22 @@ import org.mykytainua.simplegameengine.objects.components.Component;
  * rendering material functionality for 3D rendering engines.</p>
  */
 public class TextureComponent implements RenderMaterialComponent,
-                                         Bufferable {
+                                         ShaderComponent {
+    
+    private static final ComponentMetadata METADATA;
+    
+    static {
+        METADATA = new ComponentMetadata(new ComponentLayout(
+                new AttributeDefinition(DataType.INT, 
+                                        "textureID", 
+                                        OpenGLBufferType.VBO,
+                                        false),
+                
+                new AttributeDefinition(DataType.FLOAT_BUFFER, 
+                                        "textureCoordinates", 
+                                        OpenGLBufferType.VBO,
+                                        false)));
+    }
 
     /**
      * An array of texture coordinates for the object.
@@ -91,48 +111,20 @@ public class TextureComponent implements RenderMaterialComponent,
         return new TextureComponent(this.textureId, copiedTextureCoordinates);
     }
 
-    /**
-     * Returns the size of the data per vertex. (Implementation pending.)
-     *
-     * @return the size of data per vertex
-     */
     @Override
-    public int getDataPerVertexSize() {
-        // TODO Implement this method
-        return 0;
+    public String getPreprocessorDefine() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    /**
-     * Returns the total size of the texture data in bytes. (Implementation
-     * pending.)
-     *
-     * @return the total size of the data
-     */
     @Override
-    public int getTotalDataSize() {
-        // TODO Implement this method
-        return 0;
+    public ComponentMetadata getComponentMetadata() {
+        // TODO Auto-generated method stub
+        return METADATA;
     }
-
-    /**
-     * Writes the texture data to the specified {@link ByteBuffer}. (Implementation
-     * pending.)
-     *
-     * @param destinationBuffer the {@link ByteBuffer} to write data to
-     */
+    
     @Override
-    public void writeComponentDataToBuffer(ByteBuffer destinationBuffer) {
-        // TODO Implement this method
-    }
-
-    /**
-     * Returns the name of the attribute pointer associated with the texture data.
-     *
-     * @return the attribute pointer name
-     */
-    @Override
-    public String getAttrubutePointerName() {
-        // TODO Implement this method
+    public ByteBuffer getComponentData(String name) {
         return null;
     }
 }
